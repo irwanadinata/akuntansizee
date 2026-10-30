@@ -1,0 +1,639 @@
+[
+  {
+    "sourceRow": 2,
+    "sourceCode": "5500.1",
+    "name": "Akomodasi dan Transportasi Event",
+    "sourceType": "Cost of Goods Sold",
+    "details": "Biaya yang dikeluarkan untuk kebutuhan akomodasi dan atau transportasi personel dan atau pengisi acara event"
+  },
+  {
+    "sourceRow": 3,
+    "sourceCode": "1220.1",
+    "name": "Akumulasi Penyusutan Gedung",
+    "sourceType": "Fixed Asset",
+    "details": "Nilai penyusutan gedung yang diakumulasi"
+  },
+  {
+    "sourceRow": 4,
+    "sourceCode": "1220.3",
+    "name": "Akumulasi Penyusutan Inventaris Kantor",
+    "sourceType": "Fixed Asset",
+    "details": "Nilai penyusutan inventaris kantor yang diakumulasi"
+  },
+  {
+    "sourceRow": 5,
+    "sourceCode": "1220.2",
+    "name": "Akumulasi Penyusutan Kendaraan",
+    "sourceType": "Fixed Asset",
+    "details": "Nilai penyusutan kendaraan yang diakumulasi"
+  },
+  {
+    "sourceRow": 6,
+    "sourceCode": "1112.1",
+    "name": "Bank Central Asia",
+    "sourceType": "Bank",
+    "details": "Saldo Kas di Bank Central Asia"
+  },
+  {
+    "sourceRow": 7,
+    "sourceCode": "1112.2",
+    "name": "Bank Muamalat",
+    "sourceType": "Bank",
+    "details": "Saldo Kas di Bank Muamalat"
+  },
+  {
+    "sourceRow": 8,
+    "sourceCode": "1112.3",
+    "name": "Bank Rakyat Indonesia",
+    "sourceType": "Bank",
+    "details": "Saldo Kas di Bank Rakyat Indonesia"
+  },
+  {
+    "sourceRow": 9,
+    "sourceCode": "8000.3",
+    "name": "Beban Administrasi Bank",
+    "sourceType": "Expense",
+    "details": "Beban yang dibebankan oleh pihak bank pengelola rekening kas di bank"
+  },
+  {
+    "sourceRow": 10,
+    "sourceCode": "8000.2",
+    "name": "Beban Bunga Hutang Leasing",
+    "sourceType": "Expense",
+    "details": "Beban bunga yang timbul karena adanya pembelian aktiva kepada pihak ketiga"
+  },
+  {
+    "sourceRow": 11,
+    "sourceCode": "8000.1",
+    "name": "Beban Bunga Hutang Usaha",
+    "sourceType": "Expense",
+    "details": "Beban bunga yang timbul karena adanya pinjaman perusahaan"
+  },
+  {
+    "sourceRow": 12,
+    "sourceCode": "6230.1",
+    "name": "Beban Penyusutan Gedung",
+    "sourceType": "Expense",
+    "details": "Beban yang ditimbulkan atas terjadinya penyusutan gedung"
+  },
+  {
+    "sourceRow": 13,
+    "sourceCode": "6230.3",
+    "name": "Beban Penyusutan Inventaris Kantor",
+    "sourceType": "Expense",
+    "details": "Beban yang ditimbulkan atas terjadinya penyusutan inventaris kantor"
+  },
+  {
+    "sourceRow": 14,
+    "sourceCode": "6230.2",
+    "name": "Beban Penyusutan Kendaraan",
+    "sourceType": "Expense",
+    "details": "Beban yang ditimbulkan atas terjadinya penyusutan kendaraan"
+  },
+  {
+    "sourceRow": 15,
+    "sourceCode": "1140.1",
+    "name": "Biaya Dibayar Dimuka",
+    "sourceType": "Pre-paid Expense",
+    "details": "Pembayaran dan atau sewa yang dibayar dimuka untuk satu periode kedepan"
+  },
+  {
+    "sourceRow": 16,
+    "sourceCode": "6110.1",
+    "name": "Biaya Gaji Pegawai",
+    "sourceType": "Expense",
+    "details": "Biaya penggajian bulanan pegawai"
+  },
+  {
+    "sourceRow": 17,
+    "sourceCode": "6160.3",
+    "name": "Biaya Internet",
+    "sourceType": "Expense",
+    "details": "Biaya pembayaran tagihan internet"
+  },
+  {
+    "sourceRow": 18,
+    "sourceCode": "6160.2",
+    "name": "Biaya Listrik dan Air",
+    "sourceType": "Expense",
+    "details": "Biaya pembayaran tagihan listrik dan air"
+  },
+  {
+    "sourceRow": 19,
+    "sourceCode": "6110.3",
+    "name": "Biaya Pengobatan",
+    "sourceType": "Expense",
+    "details": "Biaya reimbursement untuk pengobatan pegawai"
+  },
+  {
+    "sourceRow": 20,
+    "sourceCode": "6140.2",
+    "name": "Biaya Perlengkapan Kantor/ATK",
+    "sourceType": "Expense",
+    "details": "Biaya pembelian penyediaan perlengkapan alat-alat yang berkaitan dengan perlengkapan kantor"
+  },
+  {
+    "sourceRow": 21,
+    "sourceCode": "6140.1",
+    "name": "Biaya Perlengkapan Komputer",
+    "sourceType": "Expense",
+    "details": "Biaya pembelian penyediaan perlengkapan alat-alat yang berkaitan dengan komputer"
+  },
+  {
+    "sourceRow": 22,
+    "sourceCode": "6160.4",
+    "name": "Biaya Sewa Gedung",
+    "sourceType": "Expense",
+    "details": "Biaya pembayaran tagihan sewa gedung"
+  },
+  {
+    "sourceRow": 23,
+    "sourceCode": "6160.1",
+    "name": "Biaya Telepon dan Fax",
+    "sourceType": "Expense",
+    "details": "Biaya pembayaran tagihan telepon"
+  },
+  {
+    "sourceRow": 24,
+    "sourceCode": "1122.1",
+    "name": "Cadangan Kerugian Piutang",
+    "sourceType": "Accounts Receivable",
+    "details": "Piutang yang disisihkan karena kadaluarsa dan atau tidak dapat ditagih"
+  },
+  {
+    "sourceRow": 25,
+    "sourceCode": "6220.4",
+    "name": "Denda / Bunga Pajak",
+    "sourceType": "Expense",
+    "details": "Biaya Yang Dibayarkan Untuk Denda dan Bunga Pajak"
+  },
+  {
+    "sourceRow": 26,
+    "sourceCode": "1160.1",
+    "name": "Deposit Telepon",
+    "sourceType": "Current Asset",
+    "details": "Uang yang ditahan untuk pembayaran telepon pada penyewaan gedung"
+  },
+  {
+    "sourceRow": 27,
+    "sourceCode": "1160.2",
+    "name": "Deposit Venue",
+    "sourceType": "Current Asset",
+    "details": "Uang yang ditahan pengelola gedung pada saat disewa untuk event"
+  },
+  {
+    "sourceRow": 28,
+    "sourceCode": "3200.1",
+    "name": "Deviden Pemegang Saham",
+    "sourceType": "Equity",
+    "details": "Deviden yang dibagikan kepada pemegang saham"
+  },
+  {
+    "sourceRow": 29,
+    "sourceCode": "4120.1",
+    "name": "Discount",
+    "sourceType": "Income",
+    "details": "Potongan harga atas pendapatan jasa event"
+  },
+  {
+    "sourceRow": 30,
+    "sourceCode": "6170.1",
+    "name": "Entertainment Client",
+    "sourceType": "Expense",
+    "details": "Biaya yang dikeluarkan untuk pembelian hadiah dan hiburan untuk client"
+  },
+  {
+    "sourceRow": 31,
+    "sourceCode": "6210.3",
+    "name": "Fee Design",
+    "sourceType": "Expense",
+    "details": "Biaya yang dikeluarkan untuk kegiatan yang membutuhkan jasa designer profesional"
+  },
+  {
+    "sourceRow": 32,
+    "sourceCode": "6130.3",
+    "name": "Fotocopy dan Jilid",
+    "sourceType": "Expense",
+    "details": "Biaya yang dikeluarkan untuk fotocopy dan jilid"
+  },
+  {
+    "sourceRow": 33,
+    "sourceCode": "4200.1",
+    "name": "Gain/Loss on Exchange",
+    "sourceType": "Gain/Loss on Exchange",
+    "details": "Gain or loss due to changes in currency exchange rates"
+  },
+  {
+    "sourceRow": 34,
+    "sourceCode": "1210.2",
+    "name": "Gedung",
+    "sourceType": "Fixed Asset",
+    "details": "Harta perusahaan berupa gedung"
+  },
+  {
+    "sourceRow": 35,
+    "sourceCode": "1310.2",
+    "name": "Hak Paten",
+    "sourceType": "Other Asset",
+    "details": "Aktiva tidak berwujud berupa hak paten"
+  },
+  {
+    "sourceRow": 36,
+    "sourceCode": "2210.1",
+    "name": "Hutang Bank",
+    "sourceType": "Long Term Liability",
+    "details": "Hutang pinjaman kepada bank"
+  },
+  {
+    "sourceRow": 37,
+    "sourceCode": "2120.1",
+    "name": "Hutang Biaya / Hutang Gaji",
+    "sourceType": "Current Liability",
+    "details": "Biaya / gaji yang masih harus dibayar"
+  },
+  {
+    "sourceRow": 38,
+    "sourceCode": "2220.1",
+    "name": "Hutang Leasing",
+    "sourceType": "Long Term Liability",
+    "details": "Hutang yang timbul akibat pembelian kendaraan bermotor secara kredit"
+  },
+  {
+    "sourceRow": 39,
+    "sourceCode": "2300.2",
+    "name": "Hutang Pemegang Saham Ali Ardiansyah",
+    "sourceType": "Long Term Liability",
+    "details": "Pinjaman kepada Ali Ardiansyah"
+  },
+  {
+    "sourceRow": 40,
+    "sourceCode": "2300.3",
+    "name": "Hutang Pemegang Saham Hj.Nurlela",
+    "sourceType": "Long Term Liability",
+    "details": "Pinjaman kepada Hj.Nurlela"
+  },
+  {
+    "sourceRow": 41,
+    "sourceCode": "2300.1",
+    "name": "Hutang Pemegang Saham Mulia Sari",
+    "sourceType": "Long Term Liability",
+    "details": "Pinjaman kepada Mulia sari"
+  },
+  {
+    "sourceRow": 42,
+    "sourceCode": "2130.1",
+    "name": "Hutang PPh 21",
+    "sourceType": "Taxes and Remittances",
+    "details": "PPh pasal 21 yang terhutang"
+  },
+  {
+    "sourceRow": 43,
+    "sourceCode": "2130.2",
+    "name": "Hutang PPh 23",
+    "sourceType": "Taxes and Remittances",
+    "details": "Akun untuk mencatat pajak pasal 23 yang dipotong oleh ZeeCom untuk kemudian diperhitungkan bersama Prepaid PPh 23 sebelum dilaporkan ke negara"
+  },
+  {
+    "sourceRow": 44,
+    "sourceCode": "2130.3",
+    "name": "Hutang PPh 25/29",
+    "sourceType": "Taxes and Remittances",
+    "details": "PPh pasal 25/29 yang terhutang"
+  },
+  {
+    "sourceRow": 45,
+    "sourceCode": "2130.4",
+    "name": "Hutang PPN",
+    "sourceType": "Taxes and Remittances",
+    "details": "PPN yang terhutang"
+  },
+  {
+    "sourceRow": 46,
+    "sourceCode": "2110.1",
+    "name": "Hutang Usaha",
+    "sourceType": "Accounts Payable",
+    "details": "Hutang pinjaman kepada vendor"
+  },
+  {
+    "sourceRow": 47,
+    "sourceCode": "5600.1",
+    "name": "Iklan dan Promosi Event",
+    "sourceType": "Cost of Goods Sold",
+    "details": "Biaya yang dikeluarkan untuk kegiatan periklanan dan atau promosi event di media massa baik cetak atau elektronik"
+  },
+  {
+    "sourceRow": 48,
+    "sourceCode": "1210.4",
+    "name": "Inventaris Kantor",
+    "sourceType": "Fixed Asset",
+    "details": "Seluruh peralatan penunjang kantor yang dapat disusutkan"
+  },
+  {
+    "sourceRow": 49,
+    "sourceCode": "6110.4",
+    "name": "Jamsostek dan Asuransi",
+    "sourceType": "Expense",
+    "details": "Biaya jamsostek dan atau asuransi pegawai yang ditanggung perusahaan"
+  },
+  {
+    "sourceRow": 50,
+    "sourceCode": "1111.1",
+    "name": "Kas Besar",
+    "sourceType": "Cash",
+    "details": "Saldo Kas Besar yang dikelola Finance"
+  },
+  {
+    "sourceRow": 51,
+    "sourceCode": "1111.2",
+    "name": "Kas Kecil",
+    "sourceType": "Cash",
+    "details": "Kas Kecil yang dikelola Finance"
+  },
+  {
+    "sourceRow": 52,
+    "sourceCode": "1210.3",
+    "name": "Kendaraan",
+    "sourceType": "Fixed Asset",
+    "details": "Harta perusahaan berupa kendaraan"
+  },
+  {
+    "sourceRow": 53,
+    "sourceCode": "5200.1",
+    "name": "Keperluan Penunjang Event",
+    "sourceType": "Cost of Goods Sold",
+    "details": "Biaya yang dikeluarkan untuk menyediakan barang dan jasa yang diperlukan dalam penyelenggaraan event"
+  },
+  {
+    "sourceRow": 54,
+    "sourceCode": "6110.2",
+    "name": "Komisi / Insentif / Bonus",
+    "sourceType": "Expense",
+    "details": "Pemberian komisi / insentif / bonus atas kinerja pegawai"
+  },
+  {
+    "sourceRow": 55,
+    "sourceCode": "6210.1",
+    "name": "Konsultan Keuangan/Akuntansi/Pajak",
+    "sourceType": "Expense",
+    "details": "Biaya yang dikeluarkan untuk kegiatan konsultasi berkenaan masalah keuangan akuntansi dan perpajakan"
+  },
+  {
+    "sourceRow": 56,
+    "sourceCode": "6150.3",
+    "name": "Maintenance Kantor / Gedung",
+    "sourceType": "Expense",
+    "details": "Biaya perbaikan dan perawatan kantor dan atau gedung"
+  },
+  {
+    "sourceRow": 57,
+    "sourceCode": "6150.2",
+    "name": "Maintenance Kendaraan",
+    "sourceType": "Expense",
+    "details": "Biaya perbaikan dan perawatan kendaraan bermotor"
+  },
+  {
+    "sourceRow": 58,
+    "sourceCode": "6150.1",
+    "name": "Maintenance Peralatan Kantor",
+    "sourceType": "Expense",
+    "details": "Biaya perbaikan dan perawatan peralatan dan inventaris kantor"
+  },
+  {
+    "sourceRow": 59,
+    "sourceCode": "6130.4",
+    "name": "Materai",
+    "sourceType": "Expense",
+    "details": "Biaya yang dikeluarkan untuk pembelian materai"
+  },
+  {
+    "sourceRow": 60,
+    "sourceCode": "1310.1",
+    "name": "Merk Dagang / Usaha",
+    "sourceType": "Other Asset",
+    "details": "Aktiva tidak berwujud berupa merk dagang atau usaha"
+  },
+  {
+    "sourceRow": 61,
+    "sourceCode": "3100.2",
+    "name": "Modal Disetor Ali Ardiansyah",
+    "sourceType": "Equity",
+    "details": "Modal awal yang disetorkan Ali Ardiansyah"
+  },
+  {
+    "sourceRow": 62,
+    "sourceCode": "3100.3",
+    "name": "Modal Disetor Hj.Nurlela / M.Najib Fadhil",
+    "sourceType": "Equity",
+    "details": "Modal awal yang disetorkan Hj.Nurlela / M.Najib Fadhil"
+  },
+  {
+    "sourceRow": 63,
+    "sourceCode": "3100.1",
+    "name": "Modal Disetor Mulia Sari",
+    "sourceType": "Equity",
+    "details": "Modal awal yang disetorkan Mulia Sari"
+  },
+  {
+    "sourceRow": 64,
+    "sourceCode": "6210.2",
+    "name": "Notaris",
+    "sourceType": "Expense",
+    "details": "Biaya komisi ataupun bea notaris"
+  },
+  {
+    "sourceRow": 65,
+    "sourceCode": "6110.6",
+    "name": "Pelatihan dan Pengembangan",
+    "sourceType": "Expense",
+    "details": "Biaya yang dikeluarkan untuk pelatihan dan pengembangan kemampuan karyawan"
+  },
+  {
+    "sourceRow": 66,
+    "sourceCode": "4110.1",
+    "name": "Pendapatan Jasa Event",
+    "sourceType": "Income",
+    "details": "Pendapatan atas kegiatan event"
+  },
+  {
+    "sourceRow": 67,
+    "sourceCode": "7000.1",
+    "name": "Pendapatan Jasa Giro",
+    "sourceType": "Income",
+    "details": "Pendapatan atas bunga atas rekening kas di bank"
+  },
+  {
+    "sourceRow": 68,
+    "sourceCode": "4001.1",
+    "name": "Pendapatan Lain-Lain",
+    "sourceType": "Income",
+    "details": "Pendapatan lain-lain"
+  },
+  {
+    "sourceRow": 69,
+    "sourceCode": "7000.2",
+    "name": "Pendapatan Penjualan Aktiva",
+    "sourceType": "Income",
+    "details": "Pendapatan atas penjualan aktiva yang sudah tidak terpakai"
+  },
+  {
+    "sourceRow": 70,
+    "sourceCode": "6130.2",
+    "name": "Pengiriman Dokumen",
+    "sourceType": "Expense",
+    "details": "Biaya yang dikeluarkan untuk pengiriman dokumen"
+  },
+  {
+    "sourceRow": 71,
+    "sourceCode": "1130.1",
+    "name": "Perlengkapan Kantor",
+    "sourceType": "Current Asset",
+    "details": "ATK dan alat-alat pelengkap kebutuhan kantor"
+  },
+  {
+    "sourceRow": 72,
+    "sourceCode": "5300.1",
+    "name": "Personel dan Pengisi Acara Event",
+    "sourceType": "Cost of Goods Sold",
+    "details": "Biaya yang digunakan untuk membayar personel dan pengisi acara untuk event"
+  },
+  {
+    "sourceRow": 73,
+    "sourceCode": "1122.1",
+    "name": "Piutang Karyawan",
+    "sourceType": "Current Asset",
+    "details": "Saldo piutang atau pinjaman karyawan"
+  },
+  {
+    "sourceRow": 74,
+    "sourceCode": "1121.1",
+    "name": "Piutang Usaha",
+    "sourceType": "Accounts Receivable",
+    "details": "Saldo piutang usaha customer dari pendapatan kredit"
+  },
+  {
+    "sourceRow": 75,
+    "sourceCode": "6220.1",
+    "name": "PPH Pasal 21",
+    "sourceType": "Expense",
+    "details": "Biaya pembayaran PPh Pasal 21"
+  },
+  {
+    "sourceRow": 76,
+    "sourceCode": "6220.2",
+    "name": "PPH Pasal 23",
+    "sourceType": "Expense",
+    "details": "Biaya pembayaran PPh Pasal 23"
+  },
+  {
+    "sourceRow": 77,
+    "sourceCode": "6220.3",
+    "name": "PPH Pasal 25/29",
+    "sourceType": "Expense",
+    "details": "Biaya pembayaran PPh Pasal 25/29"
+  },
+  {
+    "sourceRow": 78,
+    "sourceCode": "1130.2",
+    "name": "PPN Masukan",
+    "sourceType": "Pre-paid Expense",
+    "details": "Akun untuk mencatat PPN yang dipotong dari ZeeCom untuk kemudian diperhitungkan bersama Hutang PPN sebelum dilaporkan ke negara"
+  },
+  {
+    "sourceRow": 79,
+    "sourceCode": "1130.1",
+    "name": "Prepaid PPh 23",
+    "sourceType": "Pre-paid Expense",
+    "details": "Akun untuk mencatat pajak pasal 23 yang dipotong dari ZeeCom untuk kemudian diperhitungkan bersama Hutang PPh 23 sebelum dilaporkan ke negara"
+  },
+  {
+    "sourceRow": 80,
+    "sourceCode": "3000.1",
+    "name": "Retained Earnings",
+    "sourceType": "Retained Earnings",
+    "details": "Owner's equity in the company"
+  },
+  {
+    "sourceRow": 81,
+    "sourceCode": "4130.1",
+    "name": "Retur Pendapatan",
+    "sourceType": "Income",
+    "details": "Pengembalian pendapatan yang diterima untuk diretur"
+  },
+  {
+    "sourceRow": 82,
+    "sourceCode": "6130.1",
+    "name": "Rumah Tangga dan Umum",
+    "sourceType": "Expense",
+    "details": "Biaya yang dikeluarkan untuk pembelian barang-barang kebutuhan sehari-hari kantor"
+  },
+  {
+    "sourceRow": 83,
+    "sourceCode": "5400.1",
+    "name": "Souvenir & Gimmick Event",
+    "sourceType": "Cost of Goods Sold",
+    "details": "Biaya pembelian hadiah atau souvenir pada penyelenggaraan event"
+  },
+  {
+    "sourceRow": 84,
+    "sourceCode": "5700.1",
+    "name": "Sponsorship dan Titipan",
+    "sourceType": "Cost of Goods Sold",
+    "details": "Biaya yang dikeluarkan untuk membiaya kegiatan event titipan dan atau sponsorship"
+  },
+  {
+    "sourceRow": 85,
+    "sourceCode": "6130.6",
+    "name": "Sumbangan",
+    "sourceType": "Expense",
+    "details": "Sumbangan yang diberikan kepada yayasan atau lembaga sosial keagamaan"
+  },
+  {
+    "sourceRow": 86,
+    "sourceCode": "1210.1",
+    "name": "Tanah",
+    "sourceType": "Fixed Asset",
+    "details": "Harta perusahaan berupa tanah"
+  },
+  {
+    "sourceRow": 87,
+    "sourceCode": "1113.1",
+    "name": "Transitory Account",
+    "sourceType": "Cash",
+    "details": "Akun kas yang digunakan untuk memindahkan transaksi dari 2 akun kas"
+  },
+  {
+    "sourceRow": 88,
+    "sourceCode": "6120.1",
+    "name": "Transportasi Operasional",
+    "sourceType": "Expense",
+    "details": "Biaya reimbursement BBM tol dan parkir untuk kegiatan operasional"
+  },
+  {
+    "sourceRow": 89,
+    "sourceCode": "6110.5",
+    "name": "Tunjangan Hari Raya",
+    "sourceType": "Expense",
+    "details": "Biaya Tunjangan Hari Raya"
+  },
+  {
+    "sourceRow": 90,
+    "sourceCode": "6130.5",
+    "name": "TV Kabel",
+    "sourceType": "Expense",
+    "details": "Biaya Bulanan yang dikeluarkan untuk pembayaran TV Kabel"
+  },
+  {
+    "sourceRow": 91,
+    "sourceCode": "1150.1",
+    "name": "Uang Muka Event",
+    "sourceType": "Current Asset",
+    "details": "Dana yang diperuntukkan untuk event"
+  },
+  {
+    "sourceRow": 92,
+    "sourceCode": "5100.1",
+    "name": "Venue Event",
+    "sourceType": "Cost of Goods Sold",
+    "details": "Biaya yang dikeluarkan untuk penyewaan dan pengelolaan venue event"
+  }
+]

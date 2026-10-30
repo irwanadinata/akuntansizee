@@ -1,0 +1,417 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AccountMainType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  COGS
+  EXPENSE
+  OTHER_RESULT
+}
+
+enum NormalBalance {
+  DEBIT
+  CREDIT
+}
+
+enum FiscalYearStatus {
+  OPEN
+  LOCKED
+}
+
+model AdminUser {
+  id               String           @id @default(uuid()) @db.Uuid
+  // UNIQUE plus migration CHECK(singletonKey = 1) permits at most one admin.
+  singletonKey     Int              @unique @default(1)
+  email            String           @unique @db.VarChar(254)
+  passwordHash     String           @db.VarChar(255)
+  createdAt        DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime         @updatedAt @db.Timestamptz(3)
+  sessions         AdminSession[]
+  coaChanges       CoaChange[]
+  createdJournals  JournalEntry[]   @relation("JournalCreator")
+  postedJournals   JournalEntry[]   @relation("JournalPoster")
+  reversedJournals JournalEntry[]   @relation("JournalReverser")
+  journalRequests  JournalRequest[]
+  auditEvents      AuditEvent[]
+  loans            Loan[]           @relation("LoanCreator")
+  loanPayments     LoanPayment[]    @relation("LoanPaymentCreator")
+  loanRequests     LoanRequest[]
+  tradeDocuments   TradeDocument[]  @relation("TradeCreator")
+  tradePayments    TradePayment[]   @relation("TradePaymentCreator")
+  tradeRequests    TradeRequest[]
+  openingJournals  OpeningJournal[]
+}
+
+model AdminSession {
+  id        String    @id @default(uuid()) @db.Uuid
+  tokenHash String    @unique @db.Char(64)
+  adminId   String    @db.Uuid
+  expiresAt DateTime  @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  admin     AdminUser @relation(fields: [adminId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([adminId])
+  @@index([expiresAt])
+}
+
+model LoginThrottle {
+  key             String    @id @db.VarChar(100)
+  attempts        Int       @default(0)
+  windowStartedAt DateTime  @db.Timestamptz(3)
+  blockedUntil    DateTime? @db.Timestamptz(3)
+}
+
+// COA metadata only. No editable balance; the approved seed creates identities only.
+model Account {
+  id               String          @id @default(uuid()) @db.Uuid
+  code             String          @unique @db.VarChar(32)
+  name             String          @db.VarChar(255)
+  description      String?
+  sourceRow        Int?            @unique
+  sourceCode       String?         @db.VarChar(32)
+  sourceName       String?         @db.VarChar(255)
+  sourceType       String?         @db.VarChar(100)
+  mainType         AccountMainType
+  reportGroup      String          @db.VarChar(100)
+  normalBalance    NormalBalance
+  isContra         Boolean         @default(false)
+  isControlAccount Boolean         @default(false)
+  isActive         Boolean         @default(true)
+  requiresReview   Boolean         @default(false)
+  reviewReason     String?
+  reviewedAt       DateTime?       @db.Timestamptz(3)
+  usedAt           DateTime?       @db.Timestamptz(3)
+  version          Int             @default(1)
+  usageRecords     AccountUsage[]
+  journalLines     JournalLine[]
+  loanCash         Loan[]          @relation("LoanCash")
+  loanControl      Loan[]          @relation("LoanControl")
+  loanPaymentCash  LoanPayment[]
+  tradeCounter     TradeDocument[] @relation("TradeCounter")
+  tradeControl     TradeDocument[] @relation("TradeControl")
+  tradePaymentCash TradePayment[]
+  createdAt        DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime        @updatedAt @db.Timestamptz(3)
+}
+
+model FiscalYear {
+  id        String           @id @default(uuid()) @db.Uuid
+  year      Int              @unique
+  startDate DateTime         @db.Date
+  endDate   DateTime         @db.Date
+  status    FiscalYearStatus @default(OPEN)
+  createdAt DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime         @updatedAt @db.Timestamptz(3)
+  version   Int              @default(1)
+  journals  JournalEntry[]
+  openingJournals OpeningJournal[]
+}
+
+// Append-only usage markers. Future journal/draft/subledger modules must insert
+// a marker in the same transaction as their FK reference; no transaction data here.
+model AccountUsage {
+  id         String   @id @default(uuid()) @db.Uuid
+  accountId  String   @db.Uuid
+  sourceType String   @db.VarChar(64)
+  sourceId   String   @db.VarChar(100)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@unique([accountId, sourceType, sourceId])
+}
+
+// accountId deliberately has no FK: deletion of an unused account preserves its
+// audit record and source-row tombstone, so re-seed cannot undo admin deletion.
+model CoaChange {
+  id        String    @id @default(uuid()) @db.Uuid
+  accountId String    @db.Uuid
+  actorId   String    @db.Uuid
+  action    String    @db.VarChar(16)
+  sourceRow Int?
+  details   Json
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  actor     AdminUser @relation(fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([accountId, createdAt])
+  @@index([action, sourceRow])
+}
+
+enum JournalStatus {
+  DRAFT
+  POSTED
+  REVERSED
+}
+
+enum JournalPostingStatus {
+  DRAFT
+  POSTED
+}
+
+enum JournalSource {
+  MANUAL
+  REVERSAL
+  LOAN
+  LOAN_PAYMENT
+  TRADE_DOCUMENT
+  TRADE_PAYMENT
+}
+
+// Numbers remain reserved even after an unused draft is deleted.
+model JournalNumber {
+  id            String        @id @default(uuid()) @db.Uuid
+  journalNumber String        @unique @db.VarChar(40)
+  createdAt     DateTime      @default(now()) @db.Timestamptz(3)
+  entry         JournalEntry?
+}
+
+model JournalEntry {
+  id                    String               @id @default(uuid()) @db.Uuid
+  journalNumber         String               @unique @db.VarChar(40)
+  numberReservation     JournalNumber        @relation(fields: [journalNumber], references: [journalNumber], onDelete: Restrict, onUpdate: Restrict)
+  date                  DateTime             @db.Date
+  description           String               @db.VarChar(2000)
+  fiscalYearId          String               @db.Uuid
+  fiscalYear            FiscalYear           @relation(fields: [fiscalYearId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  status                JournalStatus        @default(DRAFT)
+  // Both POSTED and REVERSED lifecycle states remain posted economically.
+  postingStatus         JournalPostingStatus @default(DRAFT)
+  sourceType            JournalSource        @default(MANUAL)
+  reverseOfId           String?              @unique @db.Uuid
+  reverseOf             JournalEntry?        @relation("JournalReversal", fields: [reverseOfId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reversal              JournalEntry?        @relation("JournalReversal")
+  reversalReason        String?              @db.VarChar(1000)
+  createdById           String               @db.Uuid
+  createdBy             AdminUser            @relation("JournalCreator", fields: [createdById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  postedById            String?              @db.Uuid
+  postedBy              AdminUser?           @relation("JournalPoster", fields: [postedById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reversedById          String?              @db.Uuid
+  reversedBy            AdminUser?           @relation("JournalReverser", fields: [reversedById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  postedAt              DateTime?            @db.Timestamptz(3)
+  reversedAt            DateTime?            @db.Timestamptz(3)
+  createdAt             DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime             @updatedAt @db.Timestamptz(3)
+  version               Int                  @default(1)
+  lines                 JournalLine[]
+  loan                  Loan?                @relation("LoanJournal")
+  reversedLoan          Loan?                @relation("LoanReversal")
+  loanPayment           LoanPayment?         @relation("LoanPaymentJournal")
+  reversedPayment       LoanPayment?         @relation("LoanPaymentReversal")
+  tradeDocument         TradeDocument?       @relation("TradeDocumentJournal")
+  reversedTradeDocument TradeDocument?       @relation("TradeDocumentReversal")
+  tradePayment          TradePayment?        @relation("TradePaymentJournal")
+  reversedTradePayment  TradePayment?        @relation("TradePaymentReversal")
+
+  openingJournal        OpeningJournal?
+
+  @@index([postingStatus, date, postedAt, id])
+  @@index([fiscalYearId, status, date])
+}
+
+// Optional, one historical cutover per company. Append-only even after reversal.
+// All monetary values remain exclusively on the linked posted journal lines.
+model OpeningJournal {
+  id               String       @id @default(uuid()) @db.Uuid
+  singletonKey     Int          @unique @default(1)
+  journalEntryId   String       @unique @db.Uuid
+  journalEntry     JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  cutoverDate      DateTime     @db.Date
+  fiscalYearId     String       @db.Uuid
+  fiscalYear       FiscalYear   @relation(fields: [fiscalYearId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  verificationNote String      @db.VarChar(1000)
+  previewHash      String       @db.Char(64)
+  createdById      String       @db.Uuid
+  createdBy        AdminUser    @relation(fields: [createdById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  confirmedAt      DateTime     @db.Timestamptz(3)
+  createdAt        DateTime     @default(now()) @db.Timestamptz(3)
+}
+
+model JournalLine {
+  id          String       @id @default(uuid()) @db.Uuid
+  entryId     String       @db.Uuid
+  entry       JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  lineNo      Int
+  accountId   String       @db.Uuid
+  account     Account      @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  description String?      @db.VarChar(500)
+  debit       Decimal      @db.Decimal(20, 0)
+  credit      Decimal      @db.Decimal(20, 0)
+
+  @@unique([entryId, lineNo])
+  @@index([accountId, entryId])
+}
+
+model JournalRequest {
+  id          String    @id @default(uuid()) @db.Uuid
+  actorId     String    @db.Uuid
+  actor       AdminUser @relation(fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  operation   String    @db.VarChar(32)
+  requestKey  String    @db.Uuid
+  payloadHash String    @db.Char(64)
+  result      Json
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@unique([actorId, operation, requestKey], map: "JournalRequest_scope_key")
+}
+
+model AuditEvent {
+  id        String    @id @default(uuid()) @db.Uuid
+  actorId   String    @db.Uuid
+  actor     AdminUser @relation(fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  entity    String    @db.VarChar(32)
+  entityId  String    @db.Uuid
+  action    String    @db.VarChar(32)
+  details   Json
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@index([entity, entityId, createdAt])
+}
+
+model Loan {
+  id               String        @id @default(uuid()) @db.Uuid
+  loanNumber       String        @unique @db.VarChar(40)
+  employeeName     String        @db.VarChar(200)
+  date             DateTime      @db.Date
+  dueDate          DateTime?     @db.Date
+  amount           Decimal       @db.Decimal(20, 0)
+  notes            String?       @db.VarChar(1000)
+  cashAccountId    String        @db.Uuid
+  cashAccount      Account       @relation("LoanCash", fields: [cashAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  controlAccountId String        @db.Uuid
+  controlAccount   Account       @relation("LoanControl", fields: [controlAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  journalEntryId   String        @unique @db.Uuid
+  journalEntry     JournalEntry  @relation("LoanJournal", fields: [journalEntryId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reversalEntryId  String?       @unique @db.Uuid
+  reversalEntry    JournalEntry? @relation("LoanReversal", fields: [reversalEntryId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reversalReason   String?       @db.VarChar(1000)
+  reversedAt       DateTime?     @db.Timestamptz(3)
+  createdById      String        @db.Uuid
+  createdBy        AdminUser     @relation("LoanCreator", fields: [createdById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt        DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime      @updatedAt @db.Timestamptz(3)
+  version          Int           @default(1)
+  payments         LoanPayment[]
+
+  @@index([date, createdAt, id])
+  @@index([employeeName])
+}
+
+model LoanPayment {
+  id              String        @id @default(uuid()) @db.Uuid
+  paymentNumber   String        @unique @db.VarChar(40)
+  loanId          String        @db.Uuid
+  loan            Loan          @relation(fields: [loanId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  date            DateTime      @db.Date
+  amount          Decimal       @db.Decimal(20, 0)
+  notes           String?       @db.VarChar(1000)
+  cashAccountId   String        @db.Uuid
+  cashAccount     Account       @relation(fields: [cashAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  journalEntryId  String        @unique @db.Uuid
+  journalEntry    JournalEntry  @relation("LoanPaymentJournal", fields: [journalEntryId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reversalEntryId String?       @unique @db.Uuid
+  reversalEntry   JournalEntry? @relation("LoanPaymentReversal", fields: [reversalEntryId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reversalReason  String?       @db.VarChar(1000)
+  reversedAt      DateTime?     @db.Timestamptz(3)
+  createdById     String        @db.Uuid
+  createdBy       AdminUser     @relation("LoanPaymentCreator", fields: [createdById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt       DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime      @updatedAt @db.Timestamptz(3)
+  version         Int           @default(1)
+
+  @@index([loanId, date, createdAt, id])
+}
+
+model LoanRequest {
+  id          String    @id @default(uuid()) @db.Uuid
+  actorId     String    @db.Uuid
+  actor       AdminUser @relation(fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  operation   String    @db.VarChar(32)
+  requestKey  String    @db.Uuid
+  payloadHash String    @db.Char(64)
+  result      Json
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@unique([actorId, operation, requestKey], map: "LoanRequest_scope_key")
+}
+
+enum TradeKind {
+  RECEIVABLE
+  PAYABLE
+}
+
+model TradeDocument {
+  id                String         @id @default(uuid()) @db.Uuid
+  kind              TradeKind
+  documentNumber    String         @unique @db.VarChar(40)
+  partyName         String         @db.VarChar(200)
+  date              DateTime       @db.Date
+  dueDate           DateTime?      @db.Date
+  amount            Decimal        @db.Decimal(20, 0)
+  externalReference String?        @db.VarChar(100)
+  notes             String?        @db.VarChar(1000)
+  counterAccountId  String         @db.Uuid
+  counterAccount    Account        @relation("TradeCounter", fields: [counterAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  controlAccountId  String         @db.Uuid
+  controlAccount    Account        @relation("TradeControl", fields: [controlAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  journalEntryId    String         @unique @db.Uuid
+  journalEntry      JournalEntry   @relation("TradeDocumentJournal", fields: [journalEntryId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reversalEntryId   String?        @unique @db.Uuid
+  reversalEntry     JournalEntry?  @relation("TradeDocumentReversal", fields: [reversalEntryId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reversalReason    String?        @db.VarChar(1000)
+  reversedAt        DateTime?      @db.Timestamptz(3)
+  createdById       String         @db.Uuid
+  createdBy         AdminUser      @relation("TradeCreator", fields: [createdById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt         DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime       @updatedAt @db.Timestamptz(3)
+  version           Int            @default(1)
+  payments          TradePayment[]
+
+  @@index([kind, date, createdAt, id])
+  @@index([kind, partyName])
+}
+
+model TradePayment {
+  id              String        @id @default(uuid()) @db.Uuid
+  paymentNumber   String        @unique @db.VarChar(40)
+  documentId      String        @db.Uuid
+  document        TradeDocument @relation(fields: [documentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  date            DateTime      @db.Date
+  amount          Decimal       @db.Decimal(20, 0)
+  notes           String?       @db.VarChar(1000)
+  cashAccountId   String        @db.Uuid
+  cashAccount     Account       @relation(fields: [cashAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  journalEntryId  String        @unique @db.Uuid
+  journalEntry    JournalEntry  @relation("TradePaymentJournal", fields: [journalEntryId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reversalEntryId String?       @unique @db.Uuid
+  reversalEntry   JournalEntry? @relation("TradePaymentReversal", fields: [reversalEntryId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reversalReason  String?       @db.VarChar(1000)
+  reversedAt      DateTime?     @db.Timestamptz(3)
+  createdById     String        @db.Uuid
+  createdBy       AdminUser     @relation("TradePaymentCreator", fields: [createdById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt       DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime      @updatedAt @db.Timestamptz(3)
+  version         Int           @default(1)
+
+  @@index([documentId, date, createdAt, id])
+}
+
+model TradeRequest {
+  id          String    @id @default(uuid()) @db.Uuid
+  actorId     String    @db.Uuid
+  actor       AdminUser @relation(fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  operation   String    @db.VarChar(32)
+  requestKey  String    @db.Uuid
+  payloadHash String    @db.Char(64)
+  result      Json
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@unique([actorId, operation, requestKey], map: "TradeRequest_scope_key")
+}

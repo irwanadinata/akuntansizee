@@ -1,0 +1,2138 @@
+{
+  "version": 1,
+  "status": "APPROVED",
+  "approvedBy": "Codex, berdasarkan delegasi eksplisit pengguna pada 28 Oktober 2026",
+  "approvedAt": "2026-10-28T04:59:19.228Z",
+  "sourceSha256": "56764003910d46118aa18238a697cc575c1682ff5398e73de45aa8b9c21fbc8d",
+  "reviewScope": "ALL_ACCOUNTS",
+  "instructions": "Keputusan final melalui delegasi pengguna: \"Periksa COA yang konfliks dan benarkan terserah anda agar tidak konfliks\". Seluruh 91 akun ditinjau; kode final/klasifikasi di bawah disahkan oleh Codex dalam kewenangan tersebut. Sumber Excel/JSON asli tetap disimpan untuk traceability. Tidak ada saldo/jurnal yang disahkan atau dibuat.",
+  "codes": [
+    {
+      "sourceRow": 24,
+      "sourceCode": "1122.1",
+      "name": "Cadangan Kerugian Piutang",
+      "proposedCode": "1122.2",
+      "finalCode": "1122.2",
+      "approved": true
+    },
+    {
+      "sourceRow": 71,
+      "sourceCode": "1130.1",
+      "name": "Perlengkapan Kantor",
+      "proposedCode": "1130.1",
+      "finalCode": "1130.1",
+      "approved": true
+    },
+    {
+      "sourceRow": 73,
+      "sourceCode": "1122.1",
+      "name": "Piutang Karyawan",
+      "proposedCode": "1122.1",
+      "finalCode": "1122.1",
+      "approved": true
+    },
+    {
+      "sourceRow": 79,
+      "sourceCode": "1130.1",
+      "name": "Prepaid PPh 23",
+      "proposedCode": "1130.3",
+      "finalCode": "1130.3",
+      "approved": true
+    }
+  ],
+  "mappings": [
+    {
+      "sourceRow": 2,
+      "sourceCode": "5500.1",
+      "name": "Akomodasi dan Transportasi Event",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Akomodasi dan Transportasi Event",
+      "finalDescription": "Biaya yang dikeluarkan untuk kebutuhan akomodasi dan atau transportasi personel dan atau pengisi acara event"
+    },
+    {
+      "sourceRow": 3,
+      "sourceCode": "1220.1",
+      "name": "Akumulasi Penyusutan Gedung",
+      "reason": "Kontra aset: pastikan saldo kredit mengurangi aset pada kelompok yang tepat.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "CREDIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "CREDIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Akumulasi Penyusutan Gedung",
+      "finalDescription": "Nilai penyusutan gedung yang diakumulasi"
+    },
+    {
+      "sourceRow": 4,
+      "sourceCode": "1220.3",
+      "name": "Akumulasi Penyusutan Inventaris Kantor",
+      "reason": "Kontra aset: pastikan saldo kredit mengurangi aset pada kelompok yang tepat.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "CREDIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "CREDIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Akumulasi Penyusutan Inventaris Kantor",
+      "finalDescription": "Nilai penyusutan inventaris kantor yang diakumulasi"
+    },
+    {
+      "sourceRow": 5,
+      "sourceCode": "1220.2",
+      "name": "Akumulasi Penyusutan Kendaraan",
+      "reason": "Kontra aset: pastikan saldo kredit mengurangi aset pada kelompok yang tepat.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "CREDIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "CREDIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Akumulasi Penyusutan Kendaraan",
+      "finalDescription": "Nilai penyusutan kendaraan yang diakumulasi"
+    },
+    {
+      "sourceRow": 6,
+      "sourceCode": "1112.1",
+      "name": "Bank Central Asia",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Bank Central Asia",
+      "finalDescription": "Saldo Kas di Bank Central Asia"
+    },
+    {
+      "sourceRow": 7,
+      "sourceCode": "1112.2",
+      "name": "Bank Muamalat",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Bank Muamalat",
+      "finalDescription": "Saldo Kas di Bank Muamalat"
+    },
+    {
+      "sourceRow": 8,
+      "sourceCode": "1112.3",
+      "name": "Bank Rakyat Indonesia",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Bank Rakyat Indonesia",
+      "finalDescription": "Saldo Kas di Bank Rakyat Indonesia"
+    },
+    {
+      "sourceRow": 9,
+      "sourceCode": "8000.3",
+      "name": "Beban Administrasi Bank",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OTHER_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OTHER_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Beban Administrasi Bank",
+      "finalDescription": "Beban yang dibebankan oleh pihak bank pengelola rekening kas di bank"
+    },
+    {
+      "sourceRow": 10,
+      "sourceCode": "8000.2",
+      "name": "Beban Bunga Hutang Leasing",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OTHER_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OTHER_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Beban Bunga Hutang Leasing",
+      "finalDescription": "Beban bunga yang timbul karena adanya pembelian aktiva kepada pihak ketiga"
+    },
+    {
+      "sourceRow": 11,
+      "sourceCode": "8000.1",
+      "name": "Beban Bunga Hutang Usaha",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OTHER_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OTHER_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Beban Bunga Hutang Usaha",
+      "finalDescription": "Beban bunga yang timbul karena adanya pinjaman perusahaan"
+    },
+    {
+      "sourceRow": 12,
+      "sourceCode": "6230.1",
+      "name": "Beban Penyusutan Gedung",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Beban Penyusutan Gedung",
+      "finalDescription": "Beban yang ditimbulkan atas terjadinya penyusutan gedung"
+    },
+    {
+      "sourceRow": 13,
+      "sourceCode": "6230.3",
+      "name": "Beban Penyusutan Inventaris Kantor",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Beban Penyusutan Inventaris Kantor",
+      "finalDescription": "Beban yang ditimbulkan atas terjadinya penyusutan inventaris kantor"
+    },
+    {
+      "sourceRow": 14,
+      "sourceCode": "6230.2",
+      "name": "Beban Penyusutan Kendaraan",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Beban Penyusutan Kendaraan",
+      "finalDescription": "Beban yang ditimbulkan atas terjadinya penyusutan kendaraan"
+    },
+    {
+      "sourceRow": 15,
+      "sourceCode": "1140.1",
+      "name": "Biaya Dibayar Dimuka",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "PREPAID",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "PREPAID",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Biaya Dibayar Dimuka",
+      "finalDescription": "Pembayaran dan atau sewa yang dibayar dimuka untuk satu periode kedepan"
+    },
+    {
+      "sourceRow": 16,
+      "sourceCode": "6110.1",
+      "name": "Biaya Gaji Pegawai",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Biaya Gaji Pegawai",
+      "finalDescription": "Biaya penggajian bulanan pegawai"
+    },
+    {
+      "sourceRow": 17,
+      "sourceCode": "6160.3",
+      "name": "Biaya Internet",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Biaya Internet",
+      "finalDescription": "Biaya pembayaran tagihan internet"
+    },
+    {
+      "sourceRow": 18,
+      "sourceCode": "6160.2",
+      "name": "Biaya Listrik dan Air",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Biaya Listrik dan Air",
+      "finalDescription": "Biaya pembayaran tagihan listrik dan air"
+    },
+    {
+      "sourceRow": 19,
+      "sourceCode": "6110.3",
+      "name": "Biaya Pengobatan",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Biaya Pengobatan",
+      "finalDescription": "Biaya reimbursement untuk pengobatan pegawai"
+    },
+    {
+      "sourceRow": 20,
+      "sourceCode": "6140.2",
+      "name": "Biaya Perlengkapan Kantor/ATK",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Biaya Perlengkapan Kantor/ATK",
+      "finalDescription": "Biaya pembelian penyediaan perlengkapan alat-alat yang berkaitan dengan perlengkapan kantor"
+    },
+    {
+      "sourceRow": 21,
+      "sourceCode": "6140.1",
+      "name": "Biaya Perlengkapan Komputer",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Biaya Perlengkapan Komputer",
+      "finalDescription": "Biaya pembelian penyediaan perlengkapan alat-alat yang berkaitan dengan komputer"
+    },
+    {
+      "sourceRow": 22,
+      "sourceCode": "6160.4",
+      "name": "Biaya Sewa Gedung",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Biaya Sewa Gedung",
+      "finalDescription": "Biaya pembayaran tagihan sewa gedung"
+    },
+    {
+      "sourceRow": 23,
+      "sourceCode": "6160.1",
+      "name": "Biaya Telepon dan Fax",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Biaya Telepon dan Fax",
+      "finalDescription": "Biaya pembayaran tagihan telepon"
+    },
+    {
+      "sourceRow": 24,
+      "sourceCode": "1122.1",
+      "name": "Cadangan Kerugian Piutang",
+      "reason": "Kontra aset: pastikan saldo kredit mengurangi aset pada kelompok yang tepat.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "RECEIVABLE",
+        "normalBalance": "CREDIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "RECEIVABLE",
+        "normalBalance": "CREDIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Cadangan Kerugian Piutang",
+      "finalDescription": "Piutang yang disisihkan karena kadaluarsa dan atau tidak dapat ditagih"
+    },
+    {
+      "sourceRow": 25,
+      "sourceCode": "6220.4",
+      "name": "Denda / Bunga Pajak",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Denda / Bunga Pajak",
+      "finalDescription": "Biaya Yang Dibayarkan Untuk Denda dan Bunga Pajak"
+    },
+    {
+      "sourceRow": 26,
+      "sourceCode": "1160.1",
+      "name": "Deposit Telepon",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CURRENT_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CURRENT_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Deposit Telepon",
+      "finalDescription": "Uang yang ditahan untuk pembayaran telepon pada penyewaan gedung"
+    },
+    {
+      "sourceRow": 27,
+      "sourceCode": "1160.2",
+      "name": "Deposit Venue",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CURRENT_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CURRENT_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Deposit Venue",
+      "finalDescription": "Uang yang ditahan pengelola gedung pada saat disewa untuk event"
+    },
+    {
+      "sourceRow": 28,
+      "sourceCode": "3200.1",
+      "name": "Deviden Pemegang Saham",
+      "reason": "Distribusi laba kepada pemegang saham; debit mengurangi ekuitas. Bukan beban operasional.",
+      "proposedMapping": {
+        "mainType": "EQUITY",
+        "reportGroup": "DIVIDENDS",
+        "normalBalance": "DEBIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EQUITY",
+        "reportGroup": "DIVIDENDS",
+        "normalBalance": "DEBIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Dividen Pemegang Saham",
+      "finalDescription": "Distribusi laba kepada pemegang saham; debit mengurangi ekuitas. Bukan beban operasional."
+    },
+    {
+      "sourceRow": 29,
+      "sourceCode": "4120.1",
+      "name": "Discount",
+      "reason": "Potongan atas pendapatan jasa/event; kontra pendapatan bersaldo normal debit.",
+      "proposedMapping": {
+        "mainType": "REVENUE",
+        "reportGroup": "CONTRA_REVENUE",
+        "normalBalance": "DEBIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "REVENUE",
+        "reportGroup": "CONTRA_REVENUE",
+        "normalBalance": "DEBIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Diskon Pendapatan",
+      "finalDescription": "Potongan atas pendapatan jasa/event; kontra pendapatan bersaldo normal debit."
+    },
+    {
+      "sourceRow": 30,
+      "sourceCode": "6170.1",
+      "name": "Entertainment Client",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Entertainment Client",
+      "finalDescription": "Biaya yang dikeluarkan untuk pembelian hadiah dan hiburan untuk client"
+    },
+    {
+      "sourceRow": 31,
+      "sourceCode": "6210.3",
+      "name": "Fee Design",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Fee Design",
+      "finalDescription": "Biaya yang dikeluarkan untuk kegiatan yang membutuhkan jasa designer profesional"
+    },
+    {
+      "sourceRow": 32,
+      "sourceCode": "6130.3",
+      "name": "Fotocopy dan Jilid",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Fotocopy dan Jilid",
+      "finalDescription": "Biaya yang dikeluarkan untuk fotocopy dan jilid"
+    },
+    {
+      "sourceRow": 33,
+      "sourceCode": "4200.1",
+      "name": "Gain/Loss on Exchange",
+      "reason": "Hasil neto selisih kurs transaksi moneter biasa yang diakui pada laba rugi: kredit keuntungan, debit kerugian. Bukan pendapatan jasa dan bukan akun penyeimbang; tidak ada konversi valuta otomatis.",
+      "proposedMapping": {
+        "mainType": "OTHER_RESULT",
+        "reportGroup": "OTHER_RESULT",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "OTHER_RESULT",
+        "reportGroup": "OTHER_RESULT",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Keuntungan/(Kerugian) Selisih Kurs",
+      "finalDescription": "Hasil neto selisih kurs transaksi moneter biasa yang diakui pada laba rugi: kredit keuntungan, debit kerugian. Bukan pendapatan jasa dan bukan akun penyeimbang; tidak ada konversi valuta otomatis."
+    },
+    {
+      "sourceRow": 34,
+      "sourceCode": "1210.2",
+      "name": "Gedung",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Gedung",
+      "finalDescription": "Harta perusahaan berupa gedung"
+    },
+    {
+      "sourceRow": 35,
+      "sourceCode": "1310.2",
+      "name": "Hak Paten",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "OTHER_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "OTHER_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Hak Paten",
+      "finalDescription": "Aktiva tidak berwujud berupa hak paten"
+    },
+    {
+      "sourceRow": 36,
+      "sourceCode": "2210.1",
+      "name": "Hutang Bank",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "LONG_TERM_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "LONG_TERM_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Hutang Bank",
+      "finalDescription": "Hutang pinjaman kepada bank"
+    },
+    {
+      "sourceRow": 37,
+      "sourceCode": "2120.1",
+      "name": "Hutang Biaya / Hutang Gaji",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "CURRENT_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "CURRENT_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Hutang Biaya / Hutang Gaji",
+      "finalDescription": "Biaya / gaji yang masih harus dibayar"
+    },
+    {
+      "sourceRow": 38,
+      "sourceCode": "2220.1",
+      "name": "Hutang Leasing",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "LONG_TERM_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "LONG_TERM_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Hutang Leasing",
+      "finalDescription": "Hutang yang timbul akibat pembelian kendaraan bermotor secara kredit"
+    },
+    {
+      "sourceRow": 39,
+      "sourceCode": "2300.2",
+      "name": "Hutang Pemegang Saham Ali Ardiansyah",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "LONG_TERM_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "LONG_TERM_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Hutang Pemegang Saham Ali Ardiansyah",
+      "finalDescription": "Pinjaman kepada Ali Ardiansyah"
+    },
+    {
+      "sourceRow": 40,
+      "sourceCode": "2300.3",
+      "name": "Hutang Pemegang Saham Hj.Nurlela",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "LONG_TERM_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "LONG_TERM_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Hutang Pemegang Saham Hj.Nurlela",
+      "finalDescription": "Pinjaman kepada Hj.Nurlela"
+    },
+    {
+      "sourceRow": 41,
+      "sourceCode": "2300.1",
+      "name": "Hutang Pemegang Saham Mulia Sari",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "LONG_TERM_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "LONG_TERM_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Hutang Pemegang Saham Mulia Sari",
+      "finalDescription": "Pinjaman kepada Mulia sari"
+    },
+    {
+      "sourceRow": 42,
+      "sourceCode": "2130.1",
+      "name": "Hutang PPh 21",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "TAX_PAYABLE",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "TAX_PAYABLE",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Hutang PPh 21",
+      "finalDescription": "PPh pasal 21 yang terhutang"
+    },
+    {
+      "sourceRow": 43,
+      "sourceCode": "2130.2",
+      "name": "Hutang PPh 23",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "TAX_PAYABLE",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "TAX_PAYABLE",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Hutang PPh 23",
+      "finalDescription": "Akun untuk mencatat pajak pasal 23 yang dipotong oleh ZeeCom untuk kemudian diperhitungkan bersama Prepaid PPh 23 sebelum dilaporkan ke negara"
+    },
+    {
+      "sourceRow": 44,
+      "sourceCode": "2130.3",
+      "name": "Hutang PPh 25/29",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "TAX_PAYABLE",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "TAX_PAYABLE",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Hutang PPh 25/29",
+      "finalDescription": "PPh pasal 25/29 yang terhutang"
+    },
+    {
+      "sourceRow": 45,
+      "sourceCode": "2130.4",
+      "name": "Hutang PPN",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "TAX_PAYABLE",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "TAX_PAYABLE",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Hutang PPN",
+      "finalDescription": "PPN yang terhutang"
+    },
+    {
+      "sourceRow": 46,
+      "sourceCode": "2110.1",
+      "name": "Hutang Usaha",
+      "reason": "Utang tagihan supplier/vendor atas barang, jasa atau aset. Akun kontrol pembayaran supplier; bukan klasifikasi pinjaman bank.",
+      "proposedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "CURRENT_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": true
+      },
+      "approvedMapping": {
+        "mainType": "LIABILITY",
+        "reportGroup": "CURRENT_LIABILITY",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": true
+      },
+      "approved": true,
+      "finalName": "Utang Usaha",
+      "finalDescription": "Utang tagihan supplier/vendor atas barang, jasa atau aset. Akun kontrol pembayaran supplier; bukan klasifikasi pinjaman bank."
+    },
+    {
+      "sourceRow": 47,
+      "sourceCode": "5600.1",
+      "name": "Iklan dan Promosi Event",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Iklan dan Promosi Event",
+      "finalDescription": "Biaya yang dikeluarkan untuk kegiatan periklanan dan atau promosi event di media massa baik cetak atau elektronik"
+    },
+    {
+      "sourceRow": 48,
+      "sourceCode": "1210.4",
+      "name": "Inventaris Kantor",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Inventaris Kantor",
+      "finalDescription": "Seluruh peralatan penunjang kantor yang dapat disusutkan"
+    },
+    {
+      "sourceRow": 49,
+      "sourceCode": "6110.4",
+      "name": "Jamsostek dan Asuransi",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Jamsostek dan Asuransi",
+      "finalDescription": "Biaya jamsostek dan atau asuransi pegawai yang ditanggung perusahaan"
+    },
+    {
+      "sourceRow": 50,
+      "sourceCode": "1111.1",
+      "name": "Kas Besar",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Kas Besar",
+      "finalDescription": "Saldo Kas Besar yang dikelola Finance"
+    },
+    {
+      "sourceRow": 51,
+      "sourceCode": "1111.2",
+      "name": "Kas Kecil",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Kas Kecil",
+      "finalDescription": "Kas Kecil yang dikelola Finance"
+    },
+    {
+      "sourceRow": 52,
+      "sourceCode": "1210.3",
+      "name": "Kendaraan",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Kendaraan",
+      "finalDescription": "Harta perusahaan berupa kendaraan"
+    },
+    {
+      "sourceRow": 53,
+      "sourceCode": "5200.1",
+      "name": "Keperluan Penunjang Event",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Keperluan Penunjang Event",
+      "finalDescription": "Biaya yang dikeluarkan untuk menyediakan barang dan jasa yang diperlukan dalam penyelenggaraan event"
+    },
+    {
+      "sourceRow": 54,
+      "sourceCode": "6110.2",
+      "name": "Komisi / Insentif / Bonus",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Komisi / Insentif / Bonus",
+      "finalDescription": "Pemberian komisi / insentif / bonus atas kinerja pegawai"
+    },
+    {
+      "sourceRow": 55,
+      "sourceCode": "6210.1",
+      "name": "Konsultan Keuangan/Akuntansi/Pajak",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Konsultan Keuangan/Akuntansi/Pajak",
+      "finalDescription": "Biaya yang dikeluarkan untuk kegiatan konsultasi berkenaan masalah keuangan akuntansi dan perpajakan"
+    },
+    {
+      "sourceRow": 56,
+      "sourceCode": "6150.3",
+      "name": "Maintenance Kantor / Gedung",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Maintenance Kantor / Gedung",
+      "finalDescription": "Biaya perbaikan dan perawatan kantor dan atau gedung"
+    },
+    {
+      "sourceRow": 57,
+      "sourceCode": "6150.2",
+      "name": "Maintenance Kendaraan",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Maintenance Kendaraan",
+      "finalDescription": "Biaya perbaikan dan perawatan kendaraan bermotor"
+    },
+    {
+      "sourceRow": 58,
+      "sourceCode": "6150.1",
+      "name": "Maintenance Peralatan Kantor",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Maintenance Peralatan Kantor",
+      "finalDescription": "Biaya perbaikan dan perawatan peralatan dan inventaris kantor"
+    },
+    {
+      "sourceRow": 59,
+      "sourceCode": "6130.4",
+      "name": "Materai",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Materai",
+      "finalDescription": "Biaya yang dikeluarkan untuk pembelian materai"
+    },
+    {
+      "sourceRow": 60,
+      "sourceCode": "1310.1",
+      "name": "Merk Dagang / Usaha",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "OTHER_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "OTHER_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Merk Dagang / Usaha",
+      "finalDescription": "Aktiva tidak berwujud berupa merk dagang atau usaha"
+    },
+    {
+      "sourceRow": 61,
+      "sourceCode": "3100.2",
+      "name": "Modal Disetor Ali Ardiansyah",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EQUITY",
+        "reportGroup": "CAPITAL",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EQUITY",
+        "reportGroup": "CAPITAL",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Modal Disetor Ali Ardiansyah",
+      "finalDescription": "Modal awal yang disetorkan Ali Ardiansyah"
+    },
+    {
+      "sourceRow": 62,
+      "sourceCode": "3100.3",
+      "name": "Modal Disetor Hj.Nurlela / M.Najib Fadhil",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EQUITY",
+        "reportGroup": "CAPITAL",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EQUITY",
+        "reportGroup": "CAPITAL",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Modal Disetor Hj.Nurlela / M.Najib Fadhil",
+      "finalDescription": "Modal awal yang disetorkan Hj.Nurlela / M.Najib Fadhil"
+    },
+    {
+      "sourceRow": 63,
+      "sourceCode": "3100.1",
+      "name": "Modal Disetor Mulia Sari",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EQUITY",
+        "reportGroup": "CAPITAL",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EQUITY",
+        "reportGroup": "CAPITAL",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Modal Disetor Mulia Sari",
+      "finalDescription": "Modal awal yang disetorkan Mulia Sari"
+    },
+    {
+      "sourceRow": 64,
+      "sourceCode": "6210.2",
+      "name": "Notaris",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Notaris",
+      "finalDescription": "Biaya komisi ataupun bea notaris"
+    },
+    {
+      "sourceRow": 65,
+      "sourceCode": "6110.6",
+      "name": "Pelatihan dan Pengembangan",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Pelatihan dan Pengembangan",
+      "finalDescription": "Biaya yang dikeluarkan untuk pelatihan dan pengembangan kemampuan karyawan"
+    },
+    {
+      "sourceRow": 66,
+      "sourceCode": "4110.1",
+      "name": "Pendapatan Jasa Event",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "REVENUE",
+        "reportGroup": "OPERATING_REVENUE",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "REVENUE",
+        "reportGroup": "OPERATING_REVENUE",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Pendapatan Jasa Event",
+      "finalDescription": "Pendapatan atas kegiatan event"
+    },
+    {
+      "sourceRow": 67,
+      "sourceCode": "7000.1",
+      "name": "Pendapatan Jasa Giro",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "REVENUE",
+        "reportGroup": "OTHER_INCOME",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "REVENUE",
+        "reportGroup": "OTHER_INCOME",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Pendapatan Jasa Giro",
+      "finalDescription": "Pendapatan atas bunga atas rekening kas di bank"
+    },
+    {
+      "sourceRow": 68,
+      "sourceCode": "4001.1",
+      "name": "Pendapatan Lain-Lain",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "REVENUE",
+        "reportGroup": "OTHER_INCOME",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "REVENUE",
+        "reportGroup": "OTHER_INCOME",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Pendapatan Lain-Lain",
+      "finalDescription": "Pendapatan lain-lain"
+    },
+    {
+      "sourceRow": 69,
+      "sourceCode": "7000.2",
+      "name": "Pendapatan Penjualan Aktiva",
+      "reason": "Selisih neto hasil pelepasan dengan nilai tercatat aset dan biaya pelepasan yang relevan. Kredit keuntungan, debit kerugian. Penerimaan penjualan bruto bukan pendapatan jasa.",
+      "proposedMapping": {
+        "mainType": "OTHER_RESULT",
+        "reportGroup": "OTHER_RESULT",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "OTHER_RESULT",
+        "reportGroup": "OTHER_RESULT",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Keuntungan/(Kerugian) Pelepasan Aset Tetap",
+      "finalDescription": "Selisih neto hasil pelepasan dengan nilai tercatat aset dan biaya pelepasan yang relevan. Kredit keuntungan, debit kerugian. Penerimaan penjualan bruto bukan pendapatan jasa."
+    },
+    {
+      "sourceRow": 70,
+      "sourceCode": "6130.2",
+      "name": "Pengiriman Dokumen",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Pengiriman Dokumen",
+      "finalDescription": "Biaya yang dikeluarkan untuk pengiriman dokumen"
+    },
+    {
+      "sourceRow": 71,
+      "sourceCode": "1130.1",
+      "name": "Perlengkapan Kantor",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CURRENT_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CURRENT_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Perlengkapan Kantor",
+      "finalDescription": "ATK dan alat-alat pelengkap kebutuhan kantor"
+    },
+    {
+      "sourceRow": 72,
+      "sourceCode": "5300.1",
+      "name": "Personel dan Pengisi Acara Event",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Personel dan Pengisi Acara Event",
+      "finalDescription": "Biaya yang digunakan untuk membayar personel dan pengisi acara untuk event"
+    },
+    {
+      "sourceRow": 73,
+      "sourceCode": "1122.1",
+      "name": "Piutang Karyawan",
+      "reason": "Sahkan akun kontrol dan hubungannya dengan rincian transaksi sebelum digunakan.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "RECEIVABLE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": true
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "RECEIVABLE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": true
+      },
+      "approved": true,
+      "finalName": "Piutang Karyawan",
+      "finalDescription": "Saldo piutang atau pinjaman karyawan"
+    },
+    {
+      "sourceRow": 74,
+      "sourceCode": "1121.1",
+      "name": "Piutang Usaha",
+      "reason": "Sahkan akun kontrol dan hubungannya dengan rincian transaksi sebelum digunakan.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "RECEIVABLE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": true
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "RECEIVABLE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": true
+      },
+      "approved": true,
+      "finalName": "Piutang Usaha",
+      "finalDescription": "Saldo piutang usaha customer dari pendapatan kredit"
+    },
+    {
+      "sourceRow": 75,
+      "sourceCode": "6220.1",
+      "name": "PPH Pasal 21",
+      "reason": "Hanya pengakuan biaya pajak terkait remunerasi yang benar-benar ditanggung perusahaan sesuai kebijakan. Potongan pajak karyawan dicatat sebagai utang PPh 21, bukan beban kedua kali.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Beban PPh 21 Ditanggung Perusahaan",
+      "finalDescription": "Hanya pengakuan biaya pajak terkait remunerasi yang benar-benar ditanggung perusahaan sesuai kebijakan. Potongan pajak karyawan dicatat sebagai utang PPh 21, bukan beban kedua kali."
+    },
+    {
+      "sourceRow": 76,
+      "sourceCode": "6220.2",
+      "name": "PPH Pasal 23",
+      "reason": "Hanya biaya pajak yang benar-benar ditanggung perusahaan sesuai kontrak/kebijakan. Pemotongan untuk disetor memakai Utang PPh 23; pemotongan atas penerimaan perusahaan memakai Pajak Dibayar di Muka PPh 23.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Beban PPh 23 Ditanggung Perusahaan",
+      "finalDescription": "Hanya biaya pajak yang benar-benar ditanggung perusahaan sesuai kontrak/kebijakan. Pemotongan untuk disetor memakai Utang PPh 23; pemotongan atas penerimaan perusahaan memakai Pajak Dibayar di Muka PPh 23."
+    },
+    {
+      "sourceRow": 77,
+      "sourceCode": "6220.3",
+      "name": "PPH Pasal 25/29",
+      "reason": "Pengakuan beban pajak penghasilan badan periode berjalan berdasarkan perhitungan yang disahkan. Kas angsuran PPh 25 merupakan pembayaran di muka; pelunasan PPh 29 menyelesaikan utang terkait, bukan otomatis menambah beban.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "INCOME_TAX_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Beban Pajak Penghasilan Badan",
+      "finalDescription": "Pengakuan beban pajak penghasilan badan periode berjalan berdasarkan perhitungan yang disahkan. Kas angsuran PPh 25 merupakan pembayaran di muka; pelunasan PPh 29 menyelesaikan utang terkait, bukan otomatis menambah beban."
+    },
+    {
+      "sourceRow": 78,
+      "sourceCode": "1130.2",
+      "name": "PPN Masukan",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "PREPAID",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "PREPAID",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "PPN Masukan",
+      "finalDescription": "Akun untuk mencatat PPN yang dipotong dari ZeeCom untuk kemudian diperhitungkan bersama Hutang PPN sebelum dilaporkan ke negara"
+    },
+    {
+      "sourceRow": 79,
+      "sourceCode": "1130.1",
+      "name": "Prepaid PPh 23",
+      "reason": "Kredit pajak PPh 23 atas penghasilan perusahaan yang telah dipotong pihak lain dan dapat diperhitungkan sesuai bukti. Aset debit, terpisah dari Utang PPh 23.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "PREPAID",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "PREPAID",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Pajak Dibayar di Muka PPh 23",
+      "finalDescription": "Kredit pajak PPh 23 atas penghasilan perusahaan yang telah dipotong pihak lain dan dapat diperhitungkan sesuai bukti. Aset debit, terpisah dari Utang PPh 23."
+    },
+    {
+      "sourceRow": 80,
+      "sourceCode": "3000.1",
+      "name": "Retained Earnings",
+      "reason": "Akumulasi hasil usaha yang sudah dialokasikan ke ekuitas. Laba tahun lalu yang belum ditutup ditampilkan sekali dari jurnal hasil usaha; jangan dihitung ulang sebagai saldo akun ini tanpa jurnal yang sah.",
+      "proposedMapping": {
+        "mainType": "EQUITY",
+        "reportGroup": "RETAINED_EARNINGS",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EQUITY",
+        "reportGroup": "RETAINED_EARNINGS",
+        "normalBalance": "CREDIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Laba Ditahan",
+      "finalDescription": "Akumulasi hasil usaha yang sudah dialokasikan ke ekuitas. Laba tahun lalu yang belum ditutup ditampilkan sekali dari jurnal hasil usaha; jangan dihitung ulang sebagai saldo akun ini tanpa jurnal yang sah."
+    },
+    {
+      "sourceRow": 81,
+      "sourceCode": "4130.1",
+      "name": "Retur Pendapatan",
+      "reason": "Kontra pendapatan: mengurangi pendapatan, bukan pendapatan tambahan.",
+      "proposedMapping": {
+        "mainType": "REVENUE",
+        "reportGroup": "CONTRA_REVENUE",
+        "normalBalance": "DEBIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "REVENUE",
+        "reportGroup": "CONTRA_REVENUE",
+        "normalBalance": "DEBIT",
+        "isContra": true,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Retur Pendapatan",
+      "finalDescription": "Pengembalian pendapatan yang diterima untuk diretur"
+    },
+    {
+      "sourceRow": 82,
+      "sourceCode": "6130.1",
+      "name": "Rumah Tangga dan Umum",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Rumah Tangga dan Umum",
+      "finalDescription": "Biaya yang dikeluarkan untuk pembelian barang-barang kebutuhan sehari-hari kantor"
+    },
+    {
+      "sourceRow": 83,
+      "sourceCode": "5400.1",
+      "name": "Souvenir & Gimmick Event",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Souvenir & Gimmick Event",
+      "finalDescription": "Biaya pembelian hadiah atau souvenir pada penyelenggaraan event"
+    },
+    {
+      "sourceRow": 84,
+      "sourceCode": "5700.1",
+      "name": "Sponsorship dan Titipan",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Sponsorship dan Titipan",
+      "finalDescription": "Biaya yang dikeluarkan untuk membiaya kegiatan event titipan dan atau sponsorship"
+    },
+    {
+      "sourceRow": 85,
+      "sourceCode": "6130.6",
+      "name": "Sumbangan",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Sumbangan",
+      "finalDescription": "Sumbangan yang diberikan kepada yayasan atau lembaga sosial keagamaan"
+    },
+    {
+      "sourceRow": 86,
+      "sourceCode": "1210.1",
+      "name": "Tanah",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "FIXED_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Tanah",
+      "finalDescription": "Harta perusahaan berupa tanah"
+    },
+    {
+      "sourceRow": 87,
+      "sourceCode": "1113.1",
+      "name": "Transitory Account",
+      "reason": "Akun perantara pemindahan antar kas/bank. Hanya untuk perpindahan yang dapat ditelusuri, bukan menutup selisih neraca; jangan menghitung dana ganda.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CASH_BANK",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Kas dalam Pemindahan (Transitory)",
+      "finalDescription": "Akun perantara pemindahan antar kas/bank. Hanya untuk perpindahan yang dapat ditelusuri, bukan menutup selisih neraca; jangan menghitung dana ganda."
+    },
+    {
+      "sourceRow": 88,
+      "sourceCode": "6120.1",
+      "name": "Transportasi Operasional",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Transportasi Operasional",
+      "finalDescription": "Biaya reimbursement BBM tol dan parkir untuk kegiatan operasional"
+    },
+    {
+      "sourceRow": 89,
+      "sourceCode": "6110.5",
+      "name": "Tunjangan Hari Raya",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Tunjangan Hari Raya",
+      "finalDescription": "Biaya Tunjangan Hari Raya"
+    },
+    {
+      "sourceRow": 90,
+      "sourceCode": "6130.5",
+      "name": "TV Kabel",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "EXPENSE",
+        "reportGroup": "OPERATING_EXPENSE",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "TV Kabel",
+      "finalDescription": "Biaya Bulanan yang dikeluarkan untuk pembayaran TV Kabel"
+    },
+    {
+      "sourceRow": 91,
+      "sourceCode": "1150.1",
+      "name": "Uang Muka Event",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CURRENT_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "ASSET",
+        "reportGroup": "CURRENT_ASSET",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Uang Muka Event",
+      "finalDescription": "Dana yang diperuntukkan untuk event"
+    },
+    {
+      "sourceRow": 92,
+      "sourceCode": "5100.1",
+      "name": "Venue Event",
+      "reason": "Ditinjau: jenis sumber, kelompok laporan, saldo normal dan sifat akun konsisten; tidak ada penggabungan akun.",
+      "proposedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approvedMapping": {
+        "mainType": "COGS",
+        "reportGroup": "COST_OF_SALES",
+        "normalBalance": "DEBIT",
+        "isContra": false,
+        "isControlAccount": false
+      },
+      "approved": true,
+      "finalName": "Venue Event",
+      "finalDescription": "Biaya yang dikeluarkan untuk penyewaan dan pengelolaan venue event"
+    }
+  ]
+}

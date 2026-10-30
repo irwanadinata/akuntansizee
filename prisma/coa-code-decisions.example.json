@@ -1,0 +1,18 @@
+{
+  "status": "PENDING_APPROVAL",
+  "description": "Usulan kode pengganti untuk 2 duplikasi sourceCode COA. Jangan diterapkan oleh seed.ts sebelum status menjadi APPROVED melalui keputusan pemilik data.",
+  "overrides": [
+    {
+      "sourceCode": "1122.1",
+      "name": "Cadangan Kerugian Piutang",
+      "proposedCode": "1122.2",
+      "approved": false
+    },
+    {
+      "sourceCode": "1130.1",
+      "name": "Prepaid PPh 23",
+      "proposedCode": "1130.3",
+      "approved": false
+    }
+  ]
+}

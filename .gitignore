@@ -1,0 +1,20 @@
+# Dependencies and generated outputs
+/node_modules/
+/.next/
+/out/
+/coverage/
+/src/generated/prisma/
+*.tsbuildinfo
+/.npm-cache/
+/playwright-report/
+/test-results/
+/output/pdf/
+/tmp/pdfs/
+# Local secrets: examples only may be committed
+.env*
+!.env.example
+docs
+# Local logs
+*.log
+.DS_Store
+
