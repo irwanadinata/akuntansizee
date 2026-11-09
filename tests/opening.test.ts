@@ -9,10 +9,10 @@ test("pembukaan manual menormalisasi Rupiah bulat dan mewajibkan jurnal seimbang
   assert.throws(()=>openingLines({...data,lines:[data.lines[0],{...data.lines[1],amount:"1999999"}]}),/sama persis/);
   for(const amount of["0","","-1","1,5","1e3","100000000000000000000"])assert.equal(openingFields.safeParse({...input(),lines:[{...input().lines[0],amount},input().lines[1]]}).success,false);
 });
-test("cutover/referensi/akun neto/preview/konfirmasi/kunci wajib; field nomor/saldo manual ditolak",()=>{
+test("cutover/referensi/akun neto/preview/konfirmasi/kunci wajib; field saldo manual ditolak; nomor jurnal manual diterima",()=>{
   const value=input(),post={...value,previewHash:"a".repeat(64),confirmed:true,requestKey:randomUUID()};assert.equal(postOpeningSchema.safeParse(post).success,true);
-  for(const extra of[{cutoverDate:"2037-02-30"},{verificationNote:""},{lines:[value.lines[0],value.lines[0]]},{journalNumber:"JRN-MANUAL"},{balance:"1"}])assert.equal(openingFields.safeParse({...value,...extra}).success,false);
-  for(const extra of[{confirmed:false},{confirmed:undefined},{previewHash:""},{requestKey:""},{journalNumber:"JRN-MANUAL"},{lines:[value.lines[0],value.lines[0]]}])assert.equal(postOpeningSchema.safeParse({...post,...extra}).success,false);
+  for(const extra of[{cutoverDate:"2037-02-30"},{verificationNote:""},{lines:[value.lines[0],value.lines[0]]},{balance:"1"}])assert.equal(openingFields.safeParse({...value,...extra}).success,false);
+  for(const extra of[{confirmed:false},{confirmed:undefined},{previewHash:""},{requestKey:""},{lines:[value.lines[0],value.lines[0]]}])assert.equal(postOpeningSchema.safeParse({...post,...extra}).success,false);
 });
 test("akun pembukaan wajib aktif/disetujui, klasifikasi sah dan tidak boleh kontrol; kontra sah diterima",()=>{
   const account={mainType:"ASSET" as const,reportGroup:"FIXED_ASSET",normalBalance:"CREDIT" as const,isContra:true,isControlAccount:false,isActive:true,reviewedAt:new Date()};assert.doesNotThrow(()=>assertOpeningAccount(account));

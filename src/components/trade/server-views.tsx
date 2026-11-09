@@ -22,7 +22,6 @@ import { CreationLink } from "@/components/transactions/creation-link";
 import { cn } from "@/lib/utils";
 import { TradeDocumentForm } from "./document-form";
 import { TradePaymentForm } from "./payment-form";
-import { ReverseTradeForm } from "./reverse-form";
 import { tradeLabels, tradeStatus } from "./labels";
 
 export type TradeSearchParams = Record<string, string | string[] | undefined>;
@@ -88,13 +87,7 @@ export async function TradeDetailView({ kind, id, searchParams }: { kind: TradeK
   const { document, payments, balance } = result;
   const labels = tradeLabels(kind);
   const status = tradeStatus(document.reversalEntryId, balance.remaining, balance.paid);
-  const scope=await withFiscalYear(searchParams);
-  const today = fiscalDate(scope.year,jakartaDate());
-  const documentDate = dateString(document.date);
   const canPay = !document.reversalEntryId && BigInt(balance.remaining) > 0n;
-  const hasActivePayments = BigInt(balance.paid) > 0n;
-  const knownDates = [today, documentDate, ...payments.flatMap(payment => [dateString(payment.date), ...(payment.reversalEntry ? [dateString(payment.reversalEntry.date)] : [])])];
-  const defaultReverseDate = knownDates.sort().at(-1)!;
 
   return (
     <div className="space-y-6">
@@ -105,6 +98,7 @@ export async function TradeDetailView({ kind, id, searchParams }: { kind: TradeK
 
       <div className="grid gap-4 sm:grid-cols-3">{[["Tagihan awal", document.amount.toFixed(0)], [labels.received, balance.paid], ["Sisa tagihan", balance.remaining]].map(([label, amount]) => <section key={label} className="rounded-xl border bg-card p-5"><h2 className="text-sm text-muted-foreground">{label}</h2><p className="mt-2 text-xl font-semibold tabular-nums">{formatRupiah(amount)}</p></section>)}</div>
 
+      {!document.reversalEntryId&&<Button asChild variant="outline"><Link href={`/jurnal/${document.journalEntryId}/ubah`}>Ubah tagihan</Link></Button>}
       <section aria-labelledby="document-detail-heading" className="space-y-4 rounded-xl border bg-card p-5">
         <h2 id="document-detail-heading" className="text-base font-semibold">Rincian tagihan</h2>
         <dl className="grid gap-4 text-sm sm:grid-cols-2"><div><dt className="text-muted-foreground">{labels.counterField}</dt><dd className="mt-1 font-medium">{document.counterAccount.name}</dd></div><div><dt className="text-muted-foreground">Jatuh tempo</dt><dd className="mt-1">{document.dueDate ? displayDate(document.dueDate) : "Tidak ditentukan"}</dd></div>{document.externalReference && <div className="sm:col-span-2"><dt className="text-muted-foreground">{labels.externalField.replace(" (opsional)", "")}</dt><dd className="mt-1 break-all">{document.externalReference}</dd></div>}{document.notes && <div className="sm:col-span-2"><dt className="text-muted-foreground">Catatan</dt><dd className="mt-1 whitespace-pre-wrap">{document.notes}</dd></div>}</dl>
@@ -116,14 +110,12 @@ export async function TradeDetailView({ kind, id, searchParams }: { kind: TradeK
         <h2 id="payment-history-heading" className="text-lg font-semibold">Riwayat pembayaran</h2>
         {!payments.length && <div className="rounded-xl border bg-card"><EmptyState icon={ReceiptText} title="Belum ada pembayaran" description={document.reversalEntryId ? "Tagihan ini sudah dibatalkan dan historinya tetap tersimpan." : "Pembayaran dapat dicatat sebagian atau penuh. Sisa tagihan akan diperbarui otomatis."} /></div>}
         {payments.map(payment => {
-          const paymentDate = dateString(payment.date);
-          return <article key={payment.id} className="space-y-4 rounded-xl border bg-card p-5"><div className="flex flex-wrap items-start justify-between gap-4"><div><h3 className="font-semibold tabular-nums">{formatRupiah(payment.amount.toFixed(0))}</h3><p className="mt-1 text-sm">{displayDate(payment.date)} · {payment.reversalEntryId ? "Dibatalkan" : kind === "RECEIVABLE" ? "Pembayaran diterima" : "Sudah dibayar"}</p><p className="mt-2 text-sm">{labels.cashField}: <strong>{payment.cashAccount.name}</strong></p><p className="mt-2 break-all font-mono text-sm">{payment.paymentNumber}</p></div><Link href={`/jurnal/${payment.journalEntryId}`} className="text-sm text-primary underline underline-offset-4">Lihat Jurnal Otomatis</Link></div>{payment.notes && <p className="whitespace-pre-wrap text-sm">Catatan: {payment.notes}</p>}{payment.reversalEntry ? <div className="space-y-2 rounded-lg bg-muted p-4 text-sm"><p>Dibatalkan {displayDate(payment.reversalEntry.date)}: {payment.reversalReason}</p><Link href={`/jurnal/${payment.reversalEntry.id}`} className="inline-block text-primary underline underline-offset-4">Lihat jurnal pembalik · {payment.reversalEntry.journalNumber}</Link></div> : !document.reversalEntryId && <ReverseTradeForm kind={kind} id={payment.id} payment today={today < paymentDate ? paymentDate : today} minimumDate={paymentDate} />}</article>;
+          return <article key={payment.id} className="space-y-4 rounded-xl border bg-card p-5"><div className="flex flex-wrap items-start justify-between gap-4"><div><h3 className="font-semibold tabular-nums">{formatRupiah(payment.amount.toFixed(0))}</h3><p className="mt-1 text-sm">{displayDate(payment.date)} · {payment.reversalEntryId ? "Dibatalkan" : kind === "RECEIVABLE" ? "Pembayaran diterima" : "Sudah dibayar"}</p><p className="mt-2 text-sm">{labels.cashField}: <strong>{payment.cashAccount.name}</strong></p><p className="mt-2 break-all font-mono text-sm">{payment.paymentNumber}</p></div><Link href={`/jurnal/${payment.journalEntryId}`} className="text-sm text-primary underline underline-offset-4">Lihat Jurnal Otomatis</Link></div>{!payment.reversalEntryId&&!document.reversalEntryId&&<Link href={`/jurnal/${payment.journalEntryId}/ubah`} className="inline-block text-sm text-primary underline">Ubah pembayaran</Link>}{payment.notes && <p className="whitespace-pre-wrap text-sm">Catatan: {payment.notes}</p>}{payment.reversalEntry ? <div className="space-y-2 rounded-lg bg-muted p-4 text-sm"><p>Dibatalkan {displayDate(payment.reversalEntry.date)}: {payment.reversalReason}</p><Link href={`/jurnal/${payment.reversalEntry.id}`} className="inline-block text-primary underline underline-offset-4">Lihat jurnal pembalik · {payment.reversalEntry.journalNumber}</Link></div>: null}</article>;
         })}
         <nav aria-label="Halaman riwayat pembayaran" className="flex flex-wrap justify-between gap-3 text-sm"><p>{result.total} pembayaran · Halaman {result.page} dari {result.pages}</p><div className="flex gap-5">{result.page > 1 && <Link href={`?page=${result.page - 1}`} className="text-primary underline underline-offset-4">Sebelumnya</Link>}{result.page < result.pages && <Link href={`?page=${result.page + 1}`} className="text-primary underline underline-offset-4">Berikutnya</Link>}</div></nav>
       </section>
 
-      {!document.reversalEntryId && <section aria-labelledby="document-cancellation-heading" className="space-y-3"><h2 id="document-cancellation-heading" className="text-base font-semibold">Koreksi tagihan</h2>{hasActivePayments ? <p className="rounded-lg border bg-muted p-4 text-sm text-muted-foreground">Tagihan masih memiliki pembayaran aktif. Batalkan semua pembayaran tersebut terlebih dahulu sebelum membatalkan tagihan.</p> : <ReverseTradeForm kind={kind} id={id} today={defaultReverseDate} minimumDate={documentDate} />}</section>}
-      <p className="text-sm text-muted-foreground">Transaksi yang sudah dicatat tidak dapat diubah atau dihapus. Pembatalan mempertahankan transaksi asal dan membuat jurnal pembalik.</p>
+      <p className="text-sm text-muted-foreground">Gunakan Ubah tagihan atau Ubah pembayaran untuk memperbarui transaksi dan jurnalnya bersama-sama. Riwayat perubahan tetap tersimpan.</p>
     </div>
   );
 }

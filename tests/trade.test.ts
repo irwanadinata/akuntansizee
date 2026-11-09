@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import {
   counterAccountAllowed, createDocumentSchema, createPaymentSchema, documentFields, paymentFields,
-  reverseTradeSchema, TRADE_CONTROL_CODES, tradeKinds,
+  TRADE_CONTROL_CODES, tradeKinds,
 } from "../src/lib/trade/validation";
 import { tradeFilters } from "../src/lib/trade/queries";
 import { boundedCommand, isNumberCollision, newPublicNumber } from "../src/lib/journal/identity";
@@ -61,7 +61,7 @@ test("tanggal, relasi, panjang field dan nomor internal manual divalidasi pada b
     assert.equal(documentFields(kind).safeParse(fields).success, true);
     const input = { ...fields, requestKey: randomUUID() };
     for (const extra of [
-      { documentNumber: "PIU-manual" }, { internalNumber: "UTG-manual" }, { journalNumber: "JRN-manual" },
+      { documentNumber: "PIU-manual" }, { internalNumber: "UTG-manual" }, { journalNumber: "BAD NUMBER" },
       { controlAccountId: randomUUID() }, { balance: "50" }, { kind: "PAYABLE" }, { partyName: " " },
       { date: "2037-01-02", dueDate: "2037-01-01" }, { date: "2037-02-29" }, { date: "2037-02-30" },
       { counterAccountId: "invalid" }, { requestKey: "invalid" }, { externalReference: "X".repeat(101) },
@@ -71,14 +71,10 @@ test("tanggal, relasi, panjang field dan nomor internal manual divalidasi pada b
   const fields = { date: "2037-01-02", amount: "10", cashAccountId: randomUUID() };
   assert.equal(paymentFields.safeParse(fields).success, true);
   const payment = { ...fields, documentId: randomUUID(), requestKey: randomUUID() };
-  for (const extra of [{ paymentNumber: "BYC-manual" }, { journalNumber: "JRN-manual" }, { remaining: "100" }, { documentId: "invalid" }]) {
+  for (const extra of [{ paymentNumber: "BYC-manual" }, { remaining: "100" }, { documentId: "invalid" }]) {
     assert.equal(createPaymentSchema.safeParse({ ...payment, ...extra }).success, false);
   }
-  const reversal = { id: randomUUID(), date: "2038-01-01", reason: "Koreksi sintetis", requestKey: randomUUID() };
-  assert.equal(reverseTradeSchema.safeParse(reversal).success, true);
-  for (const extra of [{ reason: " " }, { id: "invalid" }, { date: "2038-02-30" }, { journalNumber: "manual" }]) {
-    assert.equal(reverseTradeSchema.safeParse({ ...reversal, ...extra }).success, false);
-  }
+
 });
 
 test("PIU/UTG/BYC/BYS memakai tanggal pembuatan WIB dan nomor CSPRNG unik", () => {

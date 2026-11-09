@@ -145,6 +145,7 @@ model CoaChange {
   @@index([action, sourceRow])
 }
 
+// DRAFT is retained for atomic assembly and legacy data; the UI saves directly as POSTED.
 enum JournalStatus {
   DRAFT
   POSTED
@@ -165,7 +166,7 @@ enum JournalSource {
   TRADE_PAYMENT
 }
 
-// Numbers remain reserved even after an unused draft is deleted.
+// Previous numbers remain reserved when a journal number is edited.
 model JournalNumber {
   id            String        @id @default(uuid()) @db.Uuid
   journalNumber String        @unique @db.VarChar(40)

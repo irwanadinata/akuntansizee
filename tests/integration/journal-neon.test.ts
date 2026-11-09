@@ -1,126 +1,78 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { randomUUID } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { loadLocalEnv } from "../../scripts/load-env";
-import { buildSeedPlan } from "../../src/lib/coa/seed-plan";
-import { executeJournalCommand, type CommandResult, type JournalOperation, type JournalDependencies } from "../../src/lib/journal/engine";
-import { ledgerReport } from "../../src/lib/ledger/report";
-import { isolatedNeon } from "./neon-schema";
+import {randomUUID} from "node:crypto";
+import {readFileSync} from "node:fs";
+import {loadLocalEnv} from "../../scripts/load-env";
+import {buildSeedPlan} from "../../src/lib/coa/seed-plan";
+import {executeJournalCommand,journalSnapshot,type CommandResult} from "../../src/lib/journal/engine";
+import {ledgerReport} from "../../src/lib/ledger/report";
+import {isolatedNeon} from "./neon-schema";
+import {seedLegacyUnposted} from "../fixtures/legacy-unposted";
+import {seedLegacyReversal} from "../fixtures/legacy-reversal";
 loadLocalEnv();
-const enabled = process.env.JOURNAL_TEST_CONFIRM === "CREATE_TEMP_SCHEMA" && Boolean(process.env.JOURNAL_TEST_DIRECT_URL || process.env.DIRECT_URL);
-test("Neon PostgreSQL: mesin jurnal dan buku besar pada schema sementara", { skip: enabled ? false : "Butuh DIRECT_URL Neon test dan JOURNAL_TEST_CONFIRM=CREATE_TEMP_SCHEMA.", timeout: 360000 }, async t => {
-  const isolated = await isolatedNeon(process.env.JOURNAL_TEST_DIRECT_URL || process.env.DIRECT_URL!);
-  const { db } = isolated;
-  try {
-    const admin = await db.adminUser.create({ data: { email: "journal-test@example.invalid", passwordHash: "test-only-disabled-" + randomUUID() } });
-    const plan = buildSeedPlan(readFileSync(new URL("../../prisma/coa-source.json", import.meta.url), "utf8"), JSON.parse(readFileSync(new URL("../../prisma/coa-code-decisions.json", import.meta.url), "utf8")));
-    await db.account.createMany({ data: plan });
-    assert.equal(await db.account.count(), 91); assert.equal(await db.journalEntry.count(), 0);
-    const all = await db.account.findMany(), cash = all.find(a => a.reportGroup === "CASH_BANK")!, income = all.find(a => a.mainType === "REVENUE" && !a.isContra)!, contra = all.find(a => a.mainType === "ASSET" && a.isContra)!, expense = all.find(a => a.mainType === "EXPENSE" && !a.isContra)!;
-    const run = (operation: JournalOperation, payload: object, deps?: JournalDependencies) => executeJournalCommand(db, admin.id, operation, { requestKey: randomUUID(), ...payload }, deps);
-    const draft = (date: string, amount = "100", second = amount, deps?: JournalDependencies) => run("CREATE_DRAFT", { date, description: "Jurnal sintetis pengujian", lines: [{ accountId: cash.id, debit: amount, credit: "0" }, { accountId: income.id, debit: "0", credit: second }] }, deps);
-    const post = (entry: CommandResult) => run("POST", { id: entry.id, version: entry.version });
-    const report = (accountId: string, from: string, to: string, page = 1) => ledgerReport(db, { accountId, from, to, page });
-    const year1 = await run("CREATE_YEAR", { year: 2037 }), year2 = await run("CREATE_YEAR", { year: 2038 });
-    let original: CommandResult;
-    await t.test("draf, idempotency serentak, edit/post nomor stabil dan akurasi Rupiah", async () => {
-      const requestKey = randomUUID(), payload = { date: "2037-01-05", description: "Pengujian jurnal seimbang", lines: [{ accountId: cash.id, debit: "100", credit: "0" }, { accountId: income.id, debit: "0", credit: "100" }], requestKey };
-      const [a, b] = await Promise.all([run("CREATE_DRAFT", payload), run("CREATE_DRAFT", payload)]);
-      assert.deepEqual(a, b); assert.equal((await report(cash.id, "2037-01-01", "2037-01-31")).closing, "0");
-      await assert.rejects(run("CREATE_DRAFT", { ...payload, description: "Isi berbeda dengan key sama" }), /isi berbeda/);
-      const edited = await run("EDIT_DRAFT", { id: a.id, version: a.version, date: payload.date, description: "Uraian sesudah edit", lines: payload.lines });
-      assert.equal(edited.journalNumber, a.journalNumber); assert.notEqual(a.id, a.journalNumber);
-      const key = randomUUID(); original = await run("POST", { id: edited.id, version: edited.version, requestKey: key });
-      assert.deepEqual(await run("POST", { id: edited.id, version: edited.version, requestKey: key }), original);
-      assert.equal(original.journalNumber, a.journalNumber); assert.equal((await report(cash.id, "2037-01-01", "2037-01-31")).closing, "100");
-    });
-    await t.test("tidak seimbang ditolak atomik, guard database tetap berlaku", async () => {
-      const entry = await draft("2037-01-06", "1000000", "999999");
-      const requests = await db.journalRequest.count(), audit = await db.auditEvent.count();
-      await assert.rejects(post(entry), /sama persis/);
-      assert.equal((await db.journalEntry.findUniqueOrThrow({ where: { id: entry.id } })).status, "DRAFT");
-      assert.equal(await db.journalRequest.count(), requests); assert.equal(await db.auditEvent.count(), audit);
-      await assert.rejects(db.$transaction(async tx => {
-        await tx.journalEntry.update({ where: { id: entry.id }, data: { status: "POSTED", postingStatus: "POSTED", postedAt: new Date(), postedById: admin.id, version: { increment: 1 } } });
-        await tx.auditEvent.create({ data: { actorId: admin.id, entity: "JOURNAL", entityId: entry.id, action: "POSTED", details: {} } });
-      }));
-      await assert.rejects(draft("2037-01-07", "0"));
-      await assert.rejects(draft("2037-02-30"));
-    });
-    await t.test("semua tiga akun kontrol diblokir tanpa subledger", async () => {
-      const before = await db.journalEntry.count(), controls = all.filter(a => a.isControlAccount); assert.equal(controls.length, 3);
-      for (const account of controls) await assert.rejects(run("CREATE_DRAFT", { date: "2037-01-07", description: "Kontrol tanpa subledger", lines: [{ accountId: account.id, debit: "1", credit: "0" }, { accountId: income.id, debit: "0", credit: "1" }] }), /Akun kontrol/);
-      assert.equal(await db.journalEntry.count(), before);
-    });
-    await t.test("posted immutable di service/DB; riwayat akun dan audit terlindungi", async () => {
-      await assert.rejects(run("EDIT_DRAFT", { id: original.id, version: original.version, date: "2037-01-05", description: "Edit jurnal terposting", lines: [{ accountId: cash.id, debit: "100", credit: "0" }, { accountId: income.id, debit: "0", credit: "100" }] }), /pembalik/);
-      await assert.rejects(run("DELETE_DRAFT", { id: original.id, version: original.version }), /pembalik/);
-      await assert.rejects(db.journalEntry.update({ where: { id: original.id }, data: { description: "Mutasi ilegal", version: { increment: 1 } } }));
-      await assert.rejects(db.journalEntry.delete({ where: { id: original.id } }));
-      await assert.rejects(db.journalLine.updateMany({ where: { entryId: original.id }, data: { debit: "999" } }));
-      await assert.rejects(db.auditEvent.deleteMany({ where: { entityId: original.id } }));
-      await assert.rejects(db.journalRequest.deleteMany({ where: { actorId: admin.id } }));
-      await assert.rejects(db.account.delete({ where: { id: cash.id } }));
-    });
-    await t.test("pembatalan atomik, pasangan unik, saldo tanggal historis tetap benar", async () => {
-      const payload = { id: original.id, version: original.version, date: "2037-02-01", reason: "Koreksi pengujian pembatalan", requestKey: randomUUID() };
-      const reversed = await run("REVERSE", payload); assert.deepEqual(await run("REVERSE", payload), reversed);
-      assert.notEqual(reversed.journalNumber, original.journalNumber);
-      const origin = await db.journalEntry.findUniqueOrThrow({ where: { id: original.id } }); assert.equal(origin.status, "REVERSED"); assert.equal(origin.postingStatus, "POSTED");
-      const jan = await report(cash.id, "2037-01-01", "2037-01-31"), feb = await report(cash.id, "2037-02-01", "2037-02-28");
-      assert.equal(jan.closing, "100"); assert.equal(feb.opening, "100"); assert.equal(feb.rows[0].balance, "0"); assert.equal(feb.closing, "0");
-      await assert.rejects(run("REVERSE", { ...payload, version: origin.version, requestKey: randomUUID() }), /dibalik lagi/);
-    });
-    await t.test("kontra kredit, bilangan di atas batas integer JS, urutan bukan nomor acak", async () => {
-      const amount = "10000000000000001";
-      const a = await run("CREATE_DRAFT", { date: "2037-03-01", description: "Uji kontra saldo normal kredit", lines: [{ accountId: expense.id, debit: amount, credit: "0" }, { accountId: contra.id, debit: "0", credit: amount }] }); await post(a);
-      assert.equal((await report(contra.id, "2037-03-01", "2037-03-31")).closing, amount);
-      const z = await draft("2037-04-01", "7", "7", { number: () => "JRN-20261028-ZZZZZZZZZZZZ" }); await post(z);
-      const a2 = await draft("2037-04-01", "9", "9", { number: () => "JRN-20261028-AAAAAAAAAAAA" }); await post(a2);
-      const rows = (await report(cash.id, "2037-04-01", "2037-04-30")).rows;
-      assert.equal(rows[0].entryId, z.id); assert.equal(rows[1].entryId, a2.id); assert.equal(rows[1].balance, "16");
-    });
-    await t.test("collision nomor DB: bounded retry, gagal total rollback, hapus draf tidak mendaur ulang nomor", async () => {
-      const reserved = "JRN-20261028-ZZZZZZZZZZZZ"; let calls = 0;
-      const entry = await draft("2037-05-01", "1", "1", { number: () => ++calls < 3 ? reserved : "JRN-20261028-BBBBBBBBBBBB" }); assert.equal(calls, 3);
-      const before = await db.journalEntry.count(); calls = 0;
-      await assert.rejects(draft("2037-05-01", "1", "1", { number: () => { calls++; return reserved; } })); assert.equal(calls, 5); assert.equal(await db.journalEntry.count(), before);
-      await run("DELETE_DRAFT", { id: entry.id, version: entry.version });
-      assert.equal(await db.journalEntry.findUnique({ where: { id: entry.id } }), null);
-      assert.ok(await db.journalNumber.findUnique({ where: { journalNumber: entry.journalNumber! } }));
-      assert.ok(await db.auditEvent.findFirst({ where: { entityId: entry.id, action: "DELETED_DRAFT" } }));
-    });
-    await t.test("periode terkunci menolak create/edit/post/delete; pembalik pada tahun terbuka dan akun diarsipkan", async () => {
-      const pending = await draft("2037-12-30", "4"), posted = await post(await draft("2037-12-31", "150"));
-      await run("SET_YEAR_STATUS", { id: year1.id, version: year1.version, status: "LOCKED", reason: "Periode uji dikunci" });
-      await assert.rejects(draft("2037-12-31"), /terkunci/); await assert.rejects(post(pending), /terkunci/); await assert.rejects(run("DELETE_DRAFT", { id: pending.id, version: pending.version }), /terkunci/);
-      await assert.rejects(run("EDIT_DRAFT", { id: pending.id, version: pending.version, date: "2038-01-01", description: "Memindahkan periode terkunci", lines: [{ accountId: cash.id, debit: "4", credit: "0" }, { accountId: income.id, debit: "0", credit: "4" }] }), /terkunci/);
-      await assert.rejects(run("REVERSE", { id: posted.id, version: posted.version, date: "2037-12-31", reason: "Tanggal terkunci" }), /terkunci/);
-      await db.account.update({ where: { id: cash.id }, data: { isActive: false, version: { increment: 1 } } });
-      await run("REVERSE", { id: posted.id, version: posted.version, date: "2038-01-01", reason: "Koreksi pada periode terbuka" });
-      const report = await ledgerReport(db, { accountId: cash.id, fiscalYearId: year2.id, from: "2038-01-01", to: "2038-01-31" }); assert.equal(report.opening, "166"); assert.equal(report.closing, "16");
-      await assert.rejects(ledgerReport(db, { accountId: cash.id, fiscalYearId: year2.id, from: "2037-12-31", to: "2038-01-31" }), /Rentang/);
-      await db.account.update({ where: { id: cash.id }, data: { isActive: true, version: { increment: 1 } } });
-    });
-    await t.test("saldo berjalan tetap lengkap pada halaman kedua, draf dikecualikan", async () => {
-      const lines = Array.from({ length: 51 }, () => ({ accountId: cash.id, debit: "1", credit: "0" })); lines.push({ accountId: income.id, debit: "0", credit: "51" });
-      await post(await run("CREATE_DRAFT", { date: "2038-03-01", description: "Uji pagination saldo berjalan", lines }));
-      await draft("2038-03-02", "999");
-      const result = await report(cash.id, "2038-03-01", "2038-03-31", 2);
-      assert.equal(result.opening, "16"); assert.equal(result.count, 51); assert.equal(result.rows.length, 1); assert.equal(result.rows[0].balance, "67"); assert.equal(result.closing, "67");
-    });
-    await t.test("dua simpan berbeda serentak unik; balapan kunci periode/post konsisten", async () => {
-      const [a, b] = await Promise.all([draft("2038-04-01", "3"), draft("2038-04-01", "5")]);
-      assert.notEqual(a.id, b.id); assert.notEqual(a.journalNumber, b.journalNumber);
-      const fiscal = await run("CREATE_YEAR", { year: 2039 }), entry = await draft("2039-01-01", "8");
-      const [posting, locking] = await Promise.allSettled([post(entry), run("SET_YEAR_STATUS", { id: fiscal.id, version: fiscal.version, status: "LOCKED", reason: "Uji konkurensi kunci periode" })]);
-      assert.equal(locking.status, "fulfilled");
-      assert.equal((await db.fiscalYear.findUniqueOrThrow({ where: { id: fiscal.id } })).status, "LOCKED");
-      const saved = await db.journalEntry.findUniqueOrThrow({ where: { id: entry.id } });
-      assert.equal(saved.status, posting.status === "fulfilled" ? "POSTED" : "DRAFT");
-      if (posting.status === "rejected") assert.match(String(posting.reason), /terkunci/);
-      await assert.rejects(draft("2039-01-02"), /terkunci/);
-    });
-  } finally { await isolated.cleanup(); }
+const enabled=process.env.JOURNAL_TEST_CONFIRM==="CREATE_TEMP_SCHEMA"&&Boolean(process.env.JOURNAL_TEST_DIRECT_URL||process.env.DIRECT_URL);
+test("PostgreSQL: nomor manual, posting langsung dan pengeditan jurnal atomik",{skip:enabled?false:"Perlu target uji dan JOURNAL_TEST_CONFIRM=CREATE_TEMP_SCHEMA.",timeout:360000},async t=>{
+ const isolated=await isolatedNeon(process.env.JOURNAL_TEST_DIRECT_URL||process.env.DIRECT_URL!),{db}=isolated;
+ try{
+  const admin=await db.adminUser.create({data:{email:"journal-test@example.invalid",passwordHash:"disabled-test-only-"+randomUUID()}});
+  const plan=buildSeedPlan(readFileSync(new URL("../../prisma/coa-source.json",import.meta.url),"utf8"),JSON.parse(readFileSync(new URL("../../prisma/coa-code-decisions.json",import.meta.url),"utf8")));await db.account.createMany({data:plan});
+  const all=await db.account.findMany(),cash=all.find(a=>a.reportGroup==="CASH_BANK")!,income=all.find(a=>a.mainType==="REVENUE"&&!a.isContra)!,expense=all.find(a=>a.mainType==="EXPENSE"&&!a.isContra)!,contra=all.find(a=>a.mainType==="ASSET"&&a.isContra)!;
+  const run=(operation:string,payload:object)=>executeJournalCommand(db,admin.id,operation,{requestKey:randomUUID(),...payload});
+  const lines=(amount:string)=>[{accountId:cash.id,debit:amount,credit:"0",description:"Kas"},{accountId:income.id,debit:"0",credit:amount,description:"Pendapatan"}];
+  const create=(date:string,amount="100",number="JU/"+randomUUID().slice(0,12))=>run("CREATE",{date,journalNumber:number,description:"Jurnal sintetis",lines:lines(amount)});
+  const snapshot=(id:string)=>db.journalEntry.findUniqueOrThrow({where:{id},include:{lines:{orderBy:{lineNo:"asc"}}}});
+  const counts=async()=>({entries:await db.journalEntry.count(),lines:await db.journalLine.count(),numbers:await db.journalNumber.count(),audits:await db.auditEvent.count(),requests:await db.journalRequest.count()});
+  const report=(from:string,to:string,page=1)=>ledgerReport(db,{accountId:cash.id,from,to,page});
+  await run("CREATE_YEAR",{year:2037});await run("CREATE_YEAR",{year:2038});let original:CommandResult;
+  await t.test("nomor pengguna dinormalisasi, sekali simpan langsung POSTED dan retry idempotent",async()=>{
+   const payload={journalNumber:" ju/2037/001 ",date:"2037-01-05",description:"Jurnal awal",lines:lines("1000"),requestKey:randomUUID()};
+   const [a,b]=await Promise.all([run("CREATE",payload),run("CREATE",payload)]);assert.deepEqual(a,b);original=a;
+   assert.equal(a.journalNumber,"JU/2037/001");assert.equal(a.status,"POSTED");assert.equal(await db.journalEntry.count({where:{status:"DRAFT"}}),0);assert.equal((await report("2037-01-01","2037-01-31")).closing,"1000");
+   const before=await counts();await assert.rejects(run("CREATE",{...payload,requestKey:randomUUID()}),/sudah pernah digunakan/);assert.deepEqual(await counts(),before);
+   await assert.rejects(run("CREATE",{...payload,description:"Isi berbeda"}),/isi berbeda/);
+  });
+  await t.test("nomor kosong/karakter tak sah dan jurnal tidak seimbang ditolak tanpa perubahan sebagian",async()=>{
+   const before=await counts();for(const journalNumber of[""," ","BAD NUMBER","X".repeat(41)])await assert.rejects(create("2037-01-05","100",journalNumber));
+   await assert.rejects(run("CREATE",{journalNumber:"JU/UNBALANCED",date:"2037-01-05",description:"Tidak seimbang",lines:[lines("100")[0],lines("99")[1]]}),/sama persis/);assert.deepEqual(await counts(),before);
+  });
+  await t.test("edit nomor, tanggal, akun/nominal mengganti pengaruh saldo serta mencatat sebelum/sesudah",async()=>{
+   const stored=await snapshot(original.id),postedAt=stored.postedAt!.toISOString(),payload={id:stored.id,version:stored.version,journalNumber:"JU/2037/001A",date:"2037-02-01",description:"Nominal diperbaiki",lines:lines("500"),reason:"Koreksi nominal dan tanggal",requestKey:randomUUID()};
+   const updated=await run("UPDATE",payload);assert.deepEqual(await run("UPDATE",payload),updated);assert.equal(updated.id,original.id);assert.equal(updated.status,"POSTED");
+   const after=await snapshot(original.id);assert.equal(after.postedAt!.toISOString(),postedAt);assert.equal(after.lines[0].debit.toFixed(0),"500");assert.equal((await report("2037-01-01","2037-01-31")).closing,"0");assert.equal((await report("2037-02-01","2037-02-28")).closing,"500");
+   const event=await db.auditEvent.findFirstOrThrow({where:{entityId:original.id,action:"EDITED"}}),details=event.details as {before:unknown;after:unknown};assert.deepEqual(details.before,journalSnapshot(stored));assert.deepEqual(details.after,journalSnapshot(after));
+   await assert.rejects(create("2037-02-02","1","JU/2037/001"),/sudah pernah digunakan/);
+  });
+  await t.test("versi basi dan dua edit serentak tidak menimpa perubahan pihak lain",async()=>{
+   const row=await snapshot(original.id),base={id:row.id,version:row.version,journalNumber:row.journalNumber,date:"2037-02-01",description:"Koreksi serentak",reason:"Pemeriksaan bukti"};
+   const results=await Promise.allSettled([run("UPDATE",{...base,lines:lines("400")}),run("UPDATE",{...base,lines:lines("600")})]);assert.equal(results.filter(r=>r.status==="fulfilled").length,1);assert.equal(results.filter(r=>r.status==="rejected").length,1);
+   const before=await counts();await assert.rejects(run("UPDATE",{...base,lines:lines("300")}),/sudah berubah/);assert.deepEqual(await counts(),before);
+  });
+  await t.test("DB menolak perubahan header/baris tanpa audit dan jejak audit tidak dapat dihapus",async()=>{
+   await assert.rejects(db.journalEntry.update({where:{id:original.id},data:{description:"Mutasi tanpa audit",version:{increment:1}}}));await assert.rejects(db.journalLine.updateMany({where:{entryId:original.id},data:{debit:"999"}}));await assert.rejects(db.journalEntry.delete({where:{id:original.id}}));await assert.rejects(db.auditEvent.deleteMany({where:{entityId:original.id}}));
+   await assert.rejects(db.$transaction(async tx=>{await tx.auditEvent.create({data:{entity:"JOURNAL",entityId:original.id,action:"EDITED",actorId:admin.id,details:{before:{},after:{},fromVersion:1,toVersion:2,transactionId:"0",reason:"Audit tidak sah"}}});}));
+  });
+  await t.test("operasi draf dan pembalik yang dihapus tidak dapat dipanggil lagi",async()=>{
+   const before=await counts();for(const operation of["CREATE_DRAFT","EDIT_DRAFT","POST","DELETE_DRAFT","REVERSE"])await assert.rejects(run(operation,{id:original.id,version:2}));assert.deepEqual(await counts(),before);
+  });
+  await t.test("catatan lama belum terposting dapat dilengkapi lalu disimpan langsung",async()=>{
+   const legacy=await seedLegacyUnposted(db,admin.id,"2037-03-01",lines("20"));assert.equal((await snapshot(legacy.id)).postingStatus,"DRAFT");
+   const row=await run("UPDATE",{id:legacy.id,version:legacy.version,journalNumber:"JU/LEGACY",date:"2037-03-01",description:"Catatan lama dilengkapi",lines:lines("25"),reason:"Melengkapi catatan lama"});assert.equal(row.status,"POSTED");assert.equal((await snapshot(row.id)).lines[0].debit.toFixed(0),"25");
+  });
+  await t.test("akun kontrol manual diblokir, akun arsip tidak menerima penggunaan baru",async()=>{
+   for(const account of all.filter(a=>a.isControlAccount))await assert.rejects(run("CREATE",{journalNumber:"JU/"+account.code,date:"2037-04-01",description:"Kontrol tanpa subledger",lines:[{accountId:account.id,debit:"1",credit:"0"},lines("1")[1]]}),/Akun kontrol/);
+   await db.account.update({where:{id:cash.id},data:{isActive:false,version:{increment:1}}});await assert.rejects(create("2037-04-01"),/nonaktif/);await db.account.update({where:{id:cash.id},data:{isActive:true,version:{increment:1}}});
+  });
+  await t.test("kontra dan nominal 20 digit tetap exact saat create dan edit",async()=>{
+   const amount="10000000000000001",input={journalNumber:"JU/PRECISION",date:"2037-05-01",description:"Presisi kontra",lines:[{accountId:expense.id,debit:amount,credit:"0"},{accountId:contra.id,debit:"0",credit:amount}]};const row=await run("CREATE",input);assert.equal((await ledgerReport(db,{accountId:contra.id,from:"2037-05-01",to:"2037-05-31"})).closing,amount);await run("UPDATE",{...input,id:row.id,version:row.version,lines:[{...input.lines[0],debit:"10000000000000002"},{...input.lines[1],credit:"10000000000000002"}],reason:"Koreksi satu Rupiah"});assert.equal((await ledgerReport(db,{accountId:contra.id,from:"2037-05-01",to:"2037-05-31"})).closing,"10000000000000002");
+  });
+  await t.test("riwayat pembalik lama tetap terbaca dan tidak dapat diedit",async()=>{
+   const row=await create("2037-06-01","19"),before=await report("2037-06-01","2037-06-01");await seedLegacyReversal(db,admin.id,row.id,"2037-06-02");assert.equal((await report("2037-06-01","2037-06-01")).closing,before.closing);const stored=await snapshot(row.id);await assert.rejects(run("UPDATE",{id:stored.id,version:stored.version,journalNumber:stored.journalNumber,date:"2037-06-01",description:"Ubah riwayat",lines:lines("19"),reason:"Tidak boleh"}),/tidak dapat diedit/);
+  });
+  await t.test("pagination saldo berjalan tetap lengkap setelah pengeditan",async()=>{
+   const before=BigInt((await report("2037-01-01","2037-12-31")).closing),many=Array.from({length:51},()=>({accountId:cash.id,debit:"1",credit:"0"}));many.push({accountId:income.id,debit:"0",credit:"51"});await run("CREATE",{journalNumber:"JU/PAGES",date:"2037-07-01",description:"Pagination saldo",lines:many});const page=await report("2037-07-01","2037-07-31",2);assert.equal(page.rows.length,1);assert.equal(page.count,51);assert.equal(page.rows[0].balance,(before+51n).toString());
+  });
+  await t.test("periode terkunci menolak create dan edit termasuk pindah ke tahun terbuka",async()=>{
+   const fiscal=await db.fiscalYear.findUniqueOrThrow({where:{year:2037}}),entry=await snapshot(original.id);await run("SET_YEAR_STATUS",{id:fiscal.id,version:fiscal.version,status:"LOCKED",reason:"Tutup periode uji"});await assert.rejects(create("2037-12-31"),/terkunci/);await assert.rejects(run("UPDATE",{id:entry.id,version:entry.version,journalNumber:entry.journalNumber,date:"2038-01-01",description:"Pindah tahun",lines:lines("100"),reason:"Periode terkunci"}),/terkunci/);assert.equal((await create("2038-01-01")).status,"POSTED");
+  });
+ }finally{await isolated.cleanup();}
 });

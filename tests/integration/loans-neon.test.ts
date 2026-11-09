@@ -1,3 +1,4 @@
+import { seedLegacyReversal } from "../fixtures/legacy-reversal";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { randomUUID } from "node:crypto";
@@ -9,7 +10,7 @@ import { executeJournalCommand,accounts,audit,openYear,reserve,writeLines } from
 import { newJournalNumber } from "../../src/lib/journal/identity";
 import { asDate } from "../../src/lib/accounting/dates";
 import { loanList,loanFilters,loanDetail } from "../../src/lib/loans/queries";
-import { executeLoanCommand, type LoanOperation, type LoanResult, type LoanDependencies } from "../../src/lib/loans/engine";
+import { executeLoanCommand, type LoanResult, type LoanDependencies } from "../../src/lib/loans/engine";
 import { loanBalance, loanReconciliation } from "../../src/lib/loans/balances";
 loadLocalEnv();
 const enabled = process.env.LOAN_TEST_CONFIRM === "CREATE_TEMP_SCHEMA" && Boolean(process.env.LOAN_TEST_DIRECT_URL || process.env.DIRECT_URL);
@@ -21,7 +22,7 @@ test("Neon: Pinjaman Karyawan dan cicilan atomik", { skip: enabled ? false : "Bu
     await db.account.createMany({ data: plan });
     const cash = await db.account.findFirstOrThrow({ where: { reportGroup: "CASH_BANK" } }), control = await db.account.findUniqueOrThrow({ where: { code: "1122.1" } });
     for (const year of [2037, 2038]) await executeJournalCommand(db, admin.id, "CREATE_YEAR", { year, requestKey: randomUUID() });
-    const run = (op: LoanOperation, data: object, deps?: LoanDependencies) => executeLoanCommand(db, admin.id, op, { requestKey: randomUUID(), ...data }, deps);
+    const run = (op: string, data: object, deps?: LoanDependencies) => executeLoanCommand(db, admin.id, op, { requestKey: randomUUID(), ...data }, deps);
     const create = (amount = "2000000", date = "2037-01-01", more = {}, deps?: LoanDependencies) => run("CREATE_LOAN", { employeeName: "Budi", date, amount, cashAccountId: cash.id, notes: "Pengujian sintetis", ...more }, deps);
     const pay = (loanId: string, amount: string, date = "2037-01-02", more = {}, deps?: LoanDependencies) => run("CREATE_PAYMENT", { loanId, amount, date, cashAccountId: cash.id, notes: "", ...more }, deps);
     const balance = (id: string) => db.$transaction(tx => loanBalance(tx, id));
@@ -56,22 +57,23 @@ test("Neon: Pinjaman Karyawan dan cicilan atomik", { skip: enabled ? false : "Bu
     await t.test("lunas tepat, status dihitung tanpa balance editable", async () => {
       const entry = await create("123", "2037-04-01"); await pay(entry.loanId, "123", "2037-04-02"); assert.equal((await balance(entry.loanId)).remaining, "0"); await assert.rejects(pay(entry.loanId, "1", "2037-04-03"), /melebihi/);
     });
-    await t.test("pembalik cicilan idempotent memulihkan sisa, asal tetap historis", async () => {
+    await t.test("riwayat pembalik cicilan lama tetap dihitung dan perintah baru ditolak", async () => {
       const payload = { id: p2.id, date: "2037-01-04", reason: "Koreksi cicilan sintetis", requestKey: randomUUID() };
-      const reversed = await run("REVERSE_PAYMENT", payload); assert.deepEqual(await run("REVERSE_PAYMENT", payload), reversed); assert.notEqual(reversed.journalNumber, p2.journalNumber);
+      await assert.rejects(run("REVERSE_PAYMENT", payload));
+      const reversed = await seedLegacyReversal(db, admin.id, p2.journalId, payload.date); assert.notEqual(reversed.journalNumber, p2.journalNumber);
       assert.equal((await balance(loan.loanId)).remaining, "1500000");
       assert.equal((await loanReconciliation(db, "2037-01-03")).control, "1250000");
-      await assert.rejects(run("REVERSE_PAYMENT", { ...payload, requestKey: randomUUID() }), /sudah dibatalkan/);
-      await assert.rejects(run("REVERSE_LOAN", { id: loan.loanId, date: "2037-01-04", reason: "Masih cicilan aktif" }), /seluruh cicilan/);
+      await assert.rejects(run("REVERSE_PAYMENT", { ...payload, requestKey: randomUUID() }));
+      await assert.rejects(run("REVERSE_LOAN", { id: loan.loanId, date: "2037-01-04", reason: "Masih cicilan aktif" }));
     });
-    await t.test("batalkan cicilan dahulu lalu pinjaman; tanggal aman, kontrol bersih", async () => {
-      await run("REVERSE_PAYMENT", { id: p1.id, date: "2037-01-05", reason: "Koreksi seluruh transaksi" });
-      await assert.rejects(run("REVERSE_LOAN", { id: loan.loanId, date: "2037-01-04", reason: "Tanggal terlalu awal" }), /seluruh cicilan/);
-      await run("REVERSE_LOAN", { id: loan.loanId, date: "2037-01-06", reason: "Pinjaman salah dicatat" }); assert.equal((await balance(loan.loanId)).remaining, "0"); assert.equal((await balance(loan.loanId)).paid, "0"); await assert.rejects(pay(loan.loanId, "1", "2037-01-07"), /dibatalkan/);
+    await t.test("riwayat pinjaman yang pernah dibatalkan tetap tampil dan direkonsiliasi", async () => {
+      await seedLegacyReversal(db, admin.id, p1.journalId, "2037-01-05");
+      await assert.rejects(run("REVERSE_LOAN", { id: loan.loanId, date: "2037-01-04", reason: "Tanggal terlalu awal" }));
+      await seedLegacyReversal(db, admin.id, loan.journalId, "2037-01-06"); assert.equal((await balance(loan.loanId)).remaining, "0"); assert.equal((await balance(loan.loanId)).paid, "0"); await assert.rejects(pay(loan.loanId, "1", "2037-01-07"), /dibatalkan/);
     });
     await t.test("backdate tidak boleh membuat sisa historis negatif meski sisa saat ini cukup", async () => {
       const entry = await create("100", "2037-05-01"), payment = await pay(entry.loanId, "100", "2037-05-02");
-      await run("REVERSE_PAYMENT", { id: payment.id, date: "2037-05-05", reason: "Memulihkan cicilan" });
+      await seedLegacyReversal(db, admin.id, payment.journalId, "2037-05-05");
       const count = await db.loanPayment.count(); await assert.rejects(pay(entry.loanId, "100", "2037-05-03"), /historis negatif/); assert.equal(await db.loanPayment.count(), count);
       await pay(entry.loanId, "100", "2037-05-06"); assert.equal((await balance(entry.loanId)).remaining, "0");
     });
@@ -79,7 +81,7 @@ test("Neon: Pinjaman Karyawan dan cicilan atomik", { skip: enabled ? false : "Bu
       const expense = await db.account.findFirstOrThrow({ where: { mainType: "EXPENSE" } }); await assert.rejects(create("10", "2037-06-01", { cashAccountId: expense.id }), /Kas\/Bank/);
       await assert.rejects(db.loan.update({ where: { id: loan.loanId }, data: { amount: "1", version: { increment: 1 } } })); await assert.rejects(db.loanPayment.delete({ where: { id: p1.id } }));
       const j = await db.journalEntry.findUniqueOrThrow({ where: { id: p1.journalId } }); await assert.rejects(executeJournalCommand(db, admin.id, "REVERSE", { id: j.id, version: j.version, date: "2037-06-01", reason: "Lewat manual", requestKey: randomUUID() }));
-      await assert.rejects(executeJournalCommand(db, admin.id, "CREATE_DRAFT", { date: "2037-06-01", description: "Kontrol manual ilegal", requestKey: randomUUID(), lines: [{ accountId: control.id, debit: "1", credit: "0" }, { accountId: cash.id, debit: "0", credit: "1" }] }));
+      await assert.rejects(executeJournalCommand(db, admin.id, "CREATE", { journalNumber:"JU/CONTROL/ILLEGAL", date: "2037-06-01", description: "Kontrol manual ilegal", requestKey: randomUUID(), lines: [{ accountId: control.id, debit: "1", credit: "0" }, { accountId: cash.id, debit: "0", credit: "1" }] }));
       await db.account.update({ where: { id: cash.id }, data: { isActive: false, version: { increment: 1 } } }); await assert.rejects(create("10", "2037-06-01"), /nonaktif/); await db.account.update({ where: { id: cash.id }, data: { isActive: true, version: { increment: 1 } } });
     });
     await t.test("collision PJM/CIC/JRN retry dibatasi, audit/nomor unik dan rollback", async () => {
@@ -102,7 +104,7 @@ test("Neon: Pinjaman Karyawan dan cicilan atomik", { skip: enabled ? false : "Bu
       const rawPayment=async(orphan:boolean)=>db.$transaction(async tx=>{
         const date=asDate("2037-09-03"),year=await openYear(tx,date),amount="50";
         const lines=orphan?[{accountId:cash.id,debit:amount,credit:"0",description:""},{accountId:cash.id,debit:"0",credit:amount,description:""}]:[{accountId:cash.id,debit:amount,credit:"0",description:""},{accountId:control.id,debit:"0",credit:amount,description:""}];
-        await accounts(tx,lines,false,control.id);const entry=await tx.journalEntry.create({data:{date,description:"Uji guard subledger DB",fiscalYearId:year.id,createdById:admin.id,sourceType:orphan?"LOAN":"LOAN_PAYMENT",journalNumber:await reserve(tx,()=>new Date(),newJournalNumber)}});
+        await accounts(tx,lines,control.id);const entry=await tx.journalEntry.create({data:{date,description:"Uji guard subledger DB",fiscalYearId:year.id,createdById:admin.id,sourceType:orphan?"LOAN":"LOAN_PAYMENT",journalNumber:await reserve(tx,()=>new Date(),newJournalNumber)}});
         if(!orphan){const p=await tx.loanPayment.create({data:{loanId:target.loanId,paymentNumber:"CIC-20261028-DDDDDDDDDDDD",date,amount,cashAccountId:cash.id,journalEntryId:entry.id,createdById:admin.id}});await audit(tx,admin.id,p.id,"CREATED",{},"LOAN_PAYMENT");}
         await writeLines(tx,entry.id,lines);await tx.journalEntry.update({where:{id:entry.id},data:{status:"POSTED",postingStatus:"POSTED",postedAt:new Date(),postedById:admin.id,version:{increment:1}}});await audit(tx,admin.id,entry.id,"POSTED",{});
       });
@@ -111,11 +113,11 @@ test("Neon: Pinjaman Karyawan dan cicilan atomik", { skip: enabled ? false : "Bu
       await assert.rejects(rawPayment(true),error=>{assert.match(reason(error),/subledger/);return true;});
       assert.equal(await db.journalEntry.count(),before);assert.equal((await balance(target.loanId)).remaining,"20");
     });
-    await t.test("periode LOCKED menolak pinjaman/cicilan; koreksi tahun berikut dan akun arsip aman", async () => {
+    await t.test("periode LOCKED menolak pinjaman/cicilan; riwayat lama tahun berikut dan akun arsip aman", async () => {
       const entry = await create("100", "2037-12-01"), p = await pay(entry.loanId, "20", "2037-12-02");
       const fiscal = await db.fiscalYear.findUniqueOrThrow({ where: { year: 2037 } }); await executeJournalCommand(db, admin.id, "SET_YEAR_STATUS", { id: fiscal.id, version: fiscal.version, status: "LOCKED", reason: "Periode terkunci test", requestKey: randomUUID() });
-      await assert.rejects(create("10", "2037-12-31"), /terkunci/); await assert.rejects(pay(entry.loanId, "1", "2037-12-31"), /terkunci/); await assert.rejects(run("REVERSE_PAYMENT", { id: p.id, date: "2037-12-31", reason: "Backdate terkunci" }), /terkunci/);
-      await db.account.update({ where: { id: control.id }, data: { isActive: false, version: { increment: 1 } } }); await run("REVERSE_PAYMENT", { id: p.id, date: "2038-01-01", reason: "Koreksi lintas tahun" }); await run("REVERSE_LOAN", { id: entry.loanId, date: "2038-01-02", reason: "Koreksi lintas tahun" }); assert.equal((await balance(entry.loanId)).remaining,"0");
+      await assert.rejects(create("10", "2037-12-31"), /terkunci/); await assert.rejects(pay(entry.loanId, "1", "2037-12-31"), /terkunci/); await assert.rejects(run("REVERSE_PAYMENT", { id: p.id, date: "2037-12-31", reason: "Backdate terkunci" }));
+      await db.account.update({ where: { id: control.id }, data: { isActive: false, version: { increment: 1 } } }); await seedLegacyReversal(db, admin.id, p.journalId, "2038-01-01"); await seedLegacyReversal(db, admin.id, entry.journalId, "2038-01-02"); assert.equal((await balance(entry.loanId)).remaining,"0");
       const reconciliation = await loanReconciliation(db); assert.equal(reconciliation.difference,"0"); assert.equal(await db.account.count(),91);
     });
   } finally { await isolated.cleanup(); }

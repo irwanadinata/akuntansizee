@@ -37,7 +37,7 @@ export async function postOpening(db:PrismaClient,actorId:string,raw:unknown,dep
     if(existing){if(existing.payloadHash!==fingerprint)throw new JournalError("Kunci permintaan sama membawa isi berbeda. Tidak ada jurnal pembukaan baru dibuat.");return resultSchema.parse(existing.result);}
     const data=await prepare(tx,input);
     if(data.previewHash!==previewHash)throw new JournalError("Isi, akun atau status tahun berubah setelah preview. Periksa ulang preview sebelum menyimpan.");
-    const entry=await tx.journalEntry.create({data:{journalNumber:await reserve(tx,now,number),date:asDate(input.cutoverDate),description:"Saldo pembukaan terverifikasi: "+input.verificationNote,fiscalYearId:data.year.id,createdById:actorId}});
+    const entry=await tx.journalEntry.create({data:{journalNumber:await reserve(tx,now,number,input.journalNumber),date:asDate(input.cutoverDate),description:"Saldo pembukaan terverifikasi: "+input.verificationNote,fiscalYearId:data.year.id,createdById:actorId}});
     await writeLines(tx,entry.id,data.lines);
     const marker=await tx.openingJournal.create({data:{journalEntryId:entry.id,cutoverDate:entry.date,fiscalYearId:data.year.id,verificationNote:input.verificationNote,previewHash,createdById:actorId,confirmedAt:now()}});
     await tx.journalEntry.update({where:{id:entry.id},data:{status:"POSTED",postingStatus:"POSTED",postedAt:now(),postedById:actorId,version:{increment:1}}});

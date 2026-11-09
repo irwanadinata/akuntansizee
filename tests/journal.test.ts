@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { rupiah, formatInteger, normalBalance } from "../src/lib/accounting/money";
 import { asDate, validBusinessDate, jakartaDate } from "../src/lib/accounting/dates";
 import { newJournalNumber, payloadHash, boundedCommand, isNumberCollision } from "../src/lib/journal/identity";
-import { createDraftSchema, assertBalanced } from "../src/lib/journal/validation";
+import { createJournalSchema, assertBalanced } from "../src/lib/journal/validation";
 import { ledgerFilters } from "../src/lib/ledger/report";
 import { sqlStatements } from "./integration/neon-schema";
 test("Rupiah exact: digit, ribuan, batas Decimal dan saldo kontra", () => {
@@ -19,12 +19,12 @@ test("Tanggal kalender ketat dan tanggal nomor menggunakan WIB", () => {
 });
 test("Baris satu sisi, jurnal positif seimbang, nominal tidak dibulatkan", () => {
   const lines = [{ accountId: randomUUID(), debit: "1.000.000", credit: "", description: "" }, { accountId: randomUUID(), debit: "", credit: "1000000", description: "" }];
-  const parsed = createDraftSchema.parse({ date: "2026-10-28", description: "Pengujian", requestKey: randomUUID(), lines });
+  const parsed = createJournalSchema.parse({ journalNumber:"JU/2026/001", date: "2026-10-28", description: "Pengujian", requestKey: randomUUID(), lines });
   assertBalanced(parsed.lines); assert.equal(parsed.lines[0].debit, "1000000");
   assert.throws(() => assertBalanced([{ debit: "1000000", credit: "0" }, { debit: "0", credit: "999999" }]));
   assert.throws(() => assertBalanced([{ debit: "0", credit: "0" }, { debit: "0", credit: "0" }]));
-  for (const debit of ["", "0", "-1", "1,5"]) assert.equal(createDraftSchema.safeParse({ ...parsed, lines: [{ ...lines[0], debit }, lines[1]] }).success, false);
-  assert.equal(createDraftSchema.safeParse({ ...parsed, lines: [{ ...lines[0], credit: "1" }, lines[1]] }).success, false);
+  for (const debit of ["", "0", "-1", "1,5"]) assert.equal(createJournalSchema.safeParse({ ...parsed, lines: [{ ...lines[0], debit }, lines[1]] }).success, false);
+  assert.equal(createJournalSchema.safeParse({ ...parsed, lines: [{ ...lines[0], credit: "1" }, lines[1]] }).success, false);
 });
 test("Nomor acak CSPRNG dan payload hash deterministik", () => {
   const numbers = new Set(Array.from({ length: 2000 }, () => newJournalNumber(new Date("2026-10-27T18:00:00Z"))));

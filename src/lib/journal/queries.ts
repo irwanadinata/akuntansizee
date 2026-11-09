@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client";
 export const journalFilters = z.object({
-  q: z.string().trim().max(100).catch(""), status: z.enum(["", "DRAFT", "POSTED", "REVERSED"]).catch(""),
+  q: z.string().trim().max(100).catch(""), status: z.enum(["", "POSTED", "REVERSED"]).catch(""),
   year: z.string().regex(/^\d{4}$/).or(z.literal("")).catch(""), page: z.coerce.number().int().min(1).max(100000).catch(1),
 });
 export async function journalList(db: PrismaClient, filters: z.infer<typeof journalFilters>) {

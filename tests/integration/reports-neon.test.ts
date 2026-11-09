@@ -1,3 +1,5 @@
+import {seedLegacyUnposted} from "../fixtures/legacy-unposted";
+import { seedLegacyReversal } from "../fixtures/legacy-reversal";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { randomUUID } from "node:crypto";
@@ -21,8 +23,9 @@ test("Neon: laporan hanya jurnal posted, saldo lintas tahun dan rekonsiliasi",{s
     const plan=buildSeedPlan(readFileSync(new URL("../../prisma/coa-source.json",import.meta.url),"utf8"),JSON.parse(readFileSync(new URL("../../prisma/coa-code-decisions.json",import.meta.url),"utf8")));await db.account.createMany({data:plan});
     const all=await db.account.findMany(),cash=all.find(a=>a.reportGroup==="CASH_BANK")!,revenue=all.find(a=>a.mainType==="REVENUE"&&!a.isContra)!,cogs=all.find(a=>a.mainType==="COGS")!,expense=all.find(a=>a.mainType==="EXPENSE"&&a.reportGroup==="OPERATING_EXPENSE")!,retained=all.find(a=>a.reportGroup==="RETAINED_EARNINGS")!;
     for(const year of[2037,2038,2039])await executeJournalCommand(db,admin.id,"CREATE_YEAR",{year,requestKey:randomUUID()});
-    const draft=(date:string,lines:{accountId:string;debit:string;credit:string}[])=>executeJournalCommand(db,admin.id,"CREATE_DRAFT",{date,description:"Jurnal sintetis uji laporan",lines,requestKey:randomUUID()});
-    const post=async(date:string,debitId:string,creditId:string,amount:string)=>{const row=await draft(date,[{accountId:debitId,debit:amount,credit:"0"},{accountId:creditId,debit:"0",credit:amount}]);return executeJournalCommand(db,admin.id,"POST",{id:row.id,version:row.version,requestKey:randomUUID()});};
+    const draft=(date:string,lines:{accountId:string;debit:string;credit:string}[])=>seedLegacyUnposted(db,admin.id,date,lines);
+    const create=(date:string,lines:{accountId:string;debit:string;credit:string}[])=>executeJournalCommand(db,admin.id,"CREATE",{journalNumber:"JU/"+randomUUID().slice(0,12),date,description:"Jurnal sintetis uji laporan",lines,requestKey:randomUUID()});
+    const post=async(date:string,debitId:string,creditId:string,amount:string)=>{const row=await create(date,[{accountId:debitId,debit:amount,credit:"0"},{accountId:creditId,debit:"0",credit:amount}]);return row;};
     const report=(year:number,from=year+"-01-01",to=year+"-12-31")=>financialReport(db,{year,from,to});
     let first:CommandResult,closingJournal:CommandResult;
     await t.test("buku baru nol, tanpa source journal atau saldo contoh",async()=>{const value=await report(2037);assert.equal(value.income.netProfit,"0");assert.equal(value.balance.totalAssets,"0");assert.equal(value.sourceCount,0);assert.equal(value.diagnostics.canUse,true);});
@@ -41,7 +44,7 @@ test("Neon: laporan hanya jurnal posted, saldo lintas tahun dan rekonsiliasi",{s
       const prior=await financialReport(db,{year:2038,from:"2038-01-01",to:"2038-12-31"},{component:"prior"});assert.equal(prior.sourceCount,3);assert.ok(prior.sources.every(source=>source.date<"2038-01-01"));
     });
     await t.test("pemindahan laba periode asal ke ekuitas tidak dihitung ganda; penutup manual ditandai",async()=>{
-      const row=await draft("2037-12-31",[{accountId:revenue.id,debit:"10000000",credit:"0"},{accountId:cogs.id,debit:"0",credit:"6000000"},{accountId:expense.id,debit:"0",credit:"1000000"},{accountId:retained.id,debit:"0",credit:"3000000"}]);closingJournal=await executeJournalCommand(db,admin.id,"POST",{id:row.id,version:row.version,requestKey:randomUUID()});
+      const row=await create("2037-12-31",[{accountId:revenue.id,debit:"10000000",credit:"0"},{accountId:cogs.id,debit:"0",credit:"6000000"},{accountId:expense.id,debit:"0",credit:"1000000"},{accountId:retained.id,debit:"0",credit:"3000000"}]);closingJournal=row;
       const value=await report(2038);assert.equal(value.balance.priorUnclosed,"0");assert.equal(value.balance.postedEquity,"3000000");assert.equal(value.balance.totalEquity,"4500000");assert.equal(value.balance.difference,"0");const closed=await report(2037);assert.equal(closed.diagnostics.manualClosingCount,1);assert.equal(closed.diagnostics.canUse,false);
     });
     await t.test("kontra dan OTHER_RESULT neto serta beban pajak mengikuti mapping disahkan",async()=>{
@@ -60,9 +63,9 @@ test("Neon: laporan hanya jurnal posted, saldo lintas tahun dan rekonsiliasi",{s
         writeFileSync(join(directory,"snapshot.json"),JSON.stringify({report:value,ledger,filter:{from:"2039-02-01",to:"2039-02-28",yearLabel:"Tahun 2039 (Terbuka)"}},null,2));
       }
     });
-    await t.test("pembalik bertanggal berikutnya menjaga laporan historis dan tidak membuat nomor saat baca",async()=>{
-      const original=await post("2039-03-01",cash.id,revenue.id,"123");const before=await report(2039,"2039-01-01","2039-03-01");await executeJournalCommand(db,admin.id,"REVERSE",{id:original.id,version:original.version,date:"2039-03-02",reason:"Koreksi sintetis",requestKey:randomUUID()});const historical=await report(2039,"2039-01-01","2039-03-01");assert.deepEqual(historical.balance,before.balance);const n=await db.journalNumber.count();const x=await report(2039),y=await report(2039);assert.equal(await db.journalNumber.count(),n);assert.deepEqual(x.sources,y.sources);assert.ok(x.sources.some(row=>row.journalNumber===original.journalNumber));
-      const prior=await report(2038);await executeJournalCommand(db,admin.id,"REVERSE",{id:closingJournal.id,version:closingJournal.version,date:"2039-03-03",reason:"Uji pembalik penutup manual",requestKey:randomUUID()});assert.deepEqual((await report(2038)).balance,prior.balance);assert.equal((await report(2037)).diagnostics.manualClosingCount,1);assert.equal((await report(2039)).diagnostics.manualClosingCount,1);
+    await t.test("riwayat pembalik lama menjaga laporan historis dan tidak membuat nomor saat baca",async()=>{
+      const original=await post("2039-03-01",cash.id,revenue.id,"123");const before=await report(2039,"2039-01-01","2039-03-01");await seedLegacyReversal(db,admin.id,original.id,"2039-03-02");const historical=await report(2039,"2039-01-01","2039-03-01");assert.deepEqual(historical.balance,before.balance);const n=await db.journalNumber.count();const x=await report(2039),y=await report(2039);assert.equal(await db.journalNumber.count(),n);assert.deepEqual(x.sources,y.sources);assert.ok(x.sources.some(row=>row.journalNumber===original.journalNumber));
+      const prior=await report(2038);await seedLegacyReversal(db,admin.id,closingJournal.id,"2039-03-03");assert.deepEqual((await report(2038)).balance,prior.balance);assert.equal((await report(2037)).diagnostics.manualClosingCount,1);assert.equal((await report(2039)).diagnostics.manualClosingCount,1);
     });
     await t.test("locking menolak post tetapi laporan/PDF data tetap dapat dibaca",async()=>{
       const year=await db.fiscalYear.findUniqueOrThrow({where:{year:2039}});await executeJournalCommand(db,admin.id,"SET_YEAR_STATUS",{id:year.id,version:year.version,status:"LOCKED",reason:"Uji laporan terkunci",requestKey:randomUUID()});await assert.rejects(post("2039-04-01",cash.id,revenue.id,"1"),/terkunci/);const value=await report(2039);assert.equal(value.year.status,"LOCKED");assert.equal(value.balance.difference,"0");await assert.rejects(report(2039,"2038-12-31","2039-01-31"));

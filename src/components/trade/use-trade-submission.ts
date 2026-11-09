@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { tradeAction } from "@/app/(admin)/trade-actions";
 import type { TradeKind } from "@/lib/trade/validation";
 
-type TradeOperation = "CREATE_DOCUMENT" | "CREATE_PAYMENT" | "REVERSE_DOCUMENT" | "REVERSE_PAYMENT";
+type TradeOperation = "CREATE_DOCUMENT" | "CREATE_PAYMENT";
 type TradeResult = NonNullable<Awaited<ReturnType<typeof tradeAction>>["result"]>;
 
 export function useTradeSubmission(kind: TradeKind, operation: TradeOperation, afterSuccess?: () => void) {
@@ -14,7 +14,7 @@ export function useTradeSubmission(kind: TradeKind, operation: TradeOperation, a
   const [message, setMessage] = useState("");
   const [saved, setSaved] = useState<TradeResult | null>(null);
 
-  function submit(payload: Record<string, string>) {
+  function submit(payload: Record<string, string | undefined>) {
     if (busy.current || saved) return;
     const fingerprint = JSON.stringify(payload);
     if (request.current.fingerprint !== fingerprint) {

@@ -1,3 +1,5 @@
+import {seedLegacyUnposted} from "../fixtures/legacy-unposted";
+import { seedLegacyReversal } from "../fixtures/legacy-reversal";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { randomUUID } from "node:crypto";
@@ -62,17 +64,17 @@ test("Neon: saldo pembukaan opsional, terverifikasi, atomik dan sekali per perus
       const current=await previewOpening(db,raw),reserved="JRN-20370101-CCCCCCCCCCCC";await db.journalNumber.create({data:{journalNumber:reserved}});const afterReserve=await counts();let attempts=0;
       await assert.rejects(postOpening(db,admin.id,{...current.input,previewHash:current.previewHash,confirmed:true,requestKey:randomUUID()},{number:()=>{attempts++;return reserved;}}));assert.equal(attempts,5);assert.deepEqual(await counts(),afterReserve);
     });
-    const oldDraft=await executeJournalCommand(db,admin.id,"CREATE_DRAFT",{date:"2036-12-31",description:"Draf sintetis sebelum cutover",lines:[{accountId:cash.id,debit:"50",credit:"0"},{accountId:revenue.id,debit:"0",credit:"50"}],requestKey:randomUUID()});
+    const oldDraft=await seedLegacyUnposted(db,admin.id,"2036-12-31",[{accountId:cash.id,debit:"50",credit:"0"},{accountId:revenue.id,debit:"0",credit:"50"}]);
     await t.test("transaksi dapat dimulai tanpa pembukaan; cutover melewati histori posted ditolak",async()=>{
-      const first=await executeJournalCommand(db,admin.id,"CREATE_DRAFT",{date:"2037-01-01",description:"Transaksi sintetis pertama tanpa pembukaan",lines:[{accountId:cash.id,debit:"50",credit:"0"},{accountId:revenue.id,debit:"0",credit:"50"}],requestKey:randomUUID()});await executeJournalCommand(db,admin.id,"POST",{id:first.id,version:first.version,requestKey:randomUUID()});assert.equal(await db.openingJournal.count(),0);
+      const first=await executeJournalCommand(db,admin.id,"CREATE",{journalNumber:"JU/FIRST",date:"2037-01-01",description:"Transaksi sintetis pertama tanpa pembukaan",lines:[{accountId:cash.id,debit:"50",credit:"0"},{accountId:revenue.id,debit:"0",credit:"50"}],requestKey:randomUUID()});assert.equal(first.status,"POSTED");assert.equal(await db.openingJournal.count(),0);
       const before=await counts();await assert.rejects(previewOpening(db,{...raw,cutoverDate:"2037-01-02"}),/sebelum cutover/);await assert.rejects(failPost(postRaw({cutoverDate:"2037-01-02"})),/sebelum cutover/);assert.deepEqual(await counts(),before);
     });
-    const preview=await previewOpening(db,raw),payload={...preview.input,previewHash:preview.previewHash,confirmed:true,requestKey:randomUUID()};
+    const preview=await previewOpening(db,{...raw,journalNumber:"AWAL/2037/001"}),payload={...preview.input,previewHash:preview.previewHash,confirmed:true,requestKey:randomUUID()};
     let saved:Awaited<ReturnType<typeof postOpening>>,winning:typeof payload;
     await t.test("dua impor simultan dengan kunci berbeda menghasilkan tepat satu jurnal pembukaan",async()=>{
       const second={...payload,requestKey:randomUUID()},before=await counts(),responses=await Promise.allSettled([postOpening(db,admin.id,payload),postOpening(db,admin.id,second)]);
       assert.equal(responses.filter(r=>r.status==="fulfilled").length,1);const index=responses.findIndex(r=>r.status==="fulfilled"),success=responses[index];assert.equal(success.status,"fulfilled");if(success.status!=="fulfilled")throw new Error("Pembukaan tidak tersimpan");saved=success.value;winning=index===0?payload:second;
-      const after=await counts();assert.equal(after.entries,before.entries+1);assert.equal(after.numbers,before.numbers+1);assert.equal(after.markers,1);assert.equal(after.requests,before.requests+1);assert.equal(after.audits,before.audits+2);assert.equal(after.usage,before.usage+4);assert.match(saved.journalNumber,/^JRN-\d{8}-[A-F0-9]{12}$/);
+      const after=await counts();assert.equal(after.entries,before.entries+1);assert.equal(after.numbers,before.numbers+1);assert.equal(after.markers,1);assert.equal(after.requests,before.requests+1);assert.equal(after.audits,before.audits+2);assert.equal(after.usage,before.usage+4);assert.equal(saved.journalNumber,"AWAL/2037/001");
     });
     await t.test("retry kunci sama stabil; isi berbeda dan impor baru/lintas tahun tetap ditolak",async()=>{
       const before=await counts(),retries=await Promise.all([postOpening(db,admin.id,winning),postOpening(db,admin.id,winning)]);assert.deepEqual(retries[0],saved);assert.deepEqual(retries[1],saved);
@@ -83,15 +85,23 @@ test("Neon: saldo pembukaan opsional, terverifikasi, atomik dan sekali per perus
       const report=await financialReport(db,{year:2037,from:"2037-01-01",to:"2037-12-31"});assert.equal(report.balance.totalAssets,"2750050");assert.equal(report.balance.difference,"0");assert.equal(report.diagnostics.canUse,true);assert.ok(report.sources.some(source=>source.journalNumber===saved.journalNumber));
       const ledger=await ledgerReport(db,{accountId:cash.id,from:"2037-01-02",to:"2037-12-31"});assert.equal(ledger.opening,"2000050");assert.equal(ledger.closing,"2000050");
       await assert.rejects(db.openingJournal.delete({where:{id:saved.openingId}}));await assert.rejects(db.openingJournal.update({where:{id:saved.openingId},data:{verificationNote:"Mengubah bukti setelah posting"}}));await assert.rejects(db.journalEntry.update({where:{id:saved.id},data:{description:"Ubah nominal diam-diam",version:{increment:1}}}));
-      const before=await counts();await assert.rejects(executeJournalCommand(db,admin.id,"POST",{id:oldDraft.id,version:oldDraft.version,requestKey:randomUUID()}),/cutover/);assert.deepEqual(await counts(),before);
+      const before=await counts();await assert.rejects(executeJournalCommand(db,admin.id,"UPDATE",{id:oldDraft.id,version:oldDraft.version,journalNumber:oldDraft.journalNumber,date:"2036-12-31",description:"Catatan lama sebelum cutover",lines:[{accountId:cash.id,debit:"50",credit:"0"},{accountId:revenue.id,debit:"0",credit:"50"}],reason:"Uji cutover",requestKey:randomUUID()}),/cutover/);assert.deepEqual(await counts(),before);
       await assert.rejects(db.$transaction(async tx=>{
         await audit(tx,admin.id,oldDraft.id,"POSTED",{journalNumber:oldDraft.journalNumber});
         await tx.journalEntry.update({where:{id:oldDraft.id},data:{status:"POSTED",postingStatus:"POSTED",postedAt:new Date(),postedById:admin.id,version:{increment:1}}});
       }),/cutover/);assert.deepEqual(await counts(),before);
     });
-    await t.test("koreksi melalui pembalik menjaga histori dan tidak membuka impor kedua",async()=>{
-      const entry=await db.journalEntry.findUniqueOrThrow({where:{id:saved.id}}),before=await financialReport(db,{year:2037,from:"2037-01-01",to:"2037-01-01"});await executeJournalCommand(db,admin.id,"REVERSE",{id:entry.id,version:entry.version,date:"2037-01-02",reason:"Koreksi sintetis pembukaan",requestKey:randomUUID()});
+    await t.test("jurnal pembukaan dapat diedit dengan audit tanpa mengubah cutover atau mengulang impor",async()=>{
+      const row=await db.journalEntry.findUniqueOrThrow({where:{id:saved.id}}),input={id:row.id,version:row.version,journalNumber:"AWAL/2037/EDIT",date:"2037-01-01",description:"Saldo awal diperbaiki",lines:[{accountId:cash.id,debit:"300",credit:"0"},{accountId:capital.id,debit:"0",credit:"300"}],reason:"Koreksi bukti saldo awal",requestKey:randomUUID()};
+      const updated=await executeJournalCommand(db,admin.id,"UPDATE",input);assert.equal(updated.journalNumber,"AWAL/2037/EDIT");assert.equal(await db.openingJournal.count(),1);
+      const before=await counts();await assert.rejects(executeJournalCommand(db,admin.id,"UPDATE",{...input,version:updated.version,date:"2037-01-02",requestKey:randomUUID()}),/cutover/);assert.deepEqual(await counts(),before);
+    });
+    await t.test("riwayat pembalik lama menjaga histori dan tidak membuka impor kedua",async()=>{
+      const entry=await db.journalEntry.findUniqueOrThrow({where:{id:saved.id}}),before=await financialReport(db,{year:2037,from:"2037-01-01",to:"2037-01-01"});await seedLegacyReversal(db,admin.id,entry.id,"2037-01-02");
       const historical=await financialReport(db,{year:2037,from:"2037-01-01",to:"2037-01-01"});assert.deepEqual(historical.balance,before.balance);const after=await financialReport(db,{year:2037,from:"2037-01-01",to:"2037-12-31"});assert.equal(after.balance.totalAssets,"50");assert.equal(after.balance.difference,"0");assert.equal(await db.openingJournal.count(),1);await assert.rejects(previewOpening(db,raw),/sudah pernah/);
+    });
+    await t.test("catatan lama sebelum cutover dapat dipindah ke tanggal sah lalu langsung diposting",async()=>{
+      const posted=await executeJournalCommand(db,admin.id,"UPDATE",{id:oldDraft.id,version:oldDraft.version,journalNumber:"JU/OLD/RESTORED",date:"2037-01-03",description:"Catatan lama diperiksa ulang",lines:[{accountId:cash.id,debit:"50",credit:"0"},{accountId:revenue.id,debit:"0",credit:"50"}],reason:"Tanggal sesuai bukti setelah cutover",requestKey:randomUUID()});assert.equal(posted.status,"POSTED");assert.equal(await db.openingJournal.count(),1);
     });
   }finally{await isolated.cleanup();}
 });

@@ -25,7 +25,7 @@ export function TradePaymentForm({ kind, accounts, today, minimumDate, document 
   const { submit, pending, message, saved, clearMessage } = useTradeSubmission(kind, "CREATE_PAYMENT");
   const { register, control, handleSubmit, setError, formState: { errors } } = useForm<PaymentInput, unknown, PaymentValues>({
     resolver: zodResolver(paymentFields),
-    defaultValues: { date: today, amount: "", cashAccountId: "", notes: "" },
+    defaultValues: { journalNumber:"", date: today, amount: "", cashAccountId: "", notes: "" },
   });
   const error = (name: keyof PaymentInput) => errors[name]?.message ? <p id={`${name}-error`} role="alert" className="text-sm text-destructive">{errors[name]?.message}</p> : null;
 
@@ -59,7 +59,7 @@ export function TradePaymentForm({ kind, accounts, today, minimumDate, document 
       <p className="text-sm">{labels.cashField}: <strong>{accounts.find(account => account.id === review.cashAccountId)?.name}</strong>. Tanggal: {displayDate(review.date)}.</p>
       <p className="text-sm">Perkiraan sisa tagihan: <strong>{formatRupiah(BigInt(document.remaining) - BigInt(review.amount))}</strong>. Sisa diperiksa kembali saat Simpan.</p>
       {review.notes && <p className="whitespace-pre-wrap text-sm">Catatan: {review.notes}</p>}
-      <p className="text-sm text-muted-foreground">Setelah dicatat, koreksi dilakukan melalui pembatalan dengan jurnal pembalik.</p>
+      <p className="text-sm text-muted-foreground">Setelah dicatat, perubahan dapat dilakukan melalui Ubah jurnal. Riwayat perubahan tetap tersimpan.</p>
       {message && <p role="alert" className="rounded-lg border p-3 text-sm">{message}</p>}
       <div className="flex flex-wrap gap-3"><Button loading={pending} type="button" disabled={pending} onClick={() => submit({ ...review, documentId: document.id })}>{pending ? "Menyimpan…" : "Simpan & Catat"}</Button><Button type="button" variant="outline" disabled={pending} onClick={() => { setReview(null); clearMessage(); }}>Ubah isian</Button></div>
     </section>
@@ -68,6 +68,7 @@ export function TradePaymentForm({ kind, accounts, today, minimumDate, document 
   return (
     <form noValidate onSubmit={event => { void handleSubmit(preview)(event); }} className="max-w-2xl space-y-5 rounded-xl border bg-card p-5 sm:p-7">
       <div className="space-y-2 rounded-lg bg-muted p-4"><p className="font-semibold">{document.partyName}</p><p className="break-all font-mono text-sm">{document.documentNumber}</p><p className="text-sm">Sisa tagihan <strong>{formatRupiah(document.remaining)}</strong></p></div>
+      <div className="space-y-2"><Label htmlFor="journalNumber">Nomor jurnal (opsional)</Label><Input id="journalNumber" {...register("journalNumber")} maxLength={40} placeholder="Contoh: JU/2026/001" autoComplete="off"/><p className="text-sm text-muted-foreground">Isi nomor unik, atau kosongkan agar dibuat otomatis.</p>{error("journalNumber")}</div>
       <div className="space-y-2"><Label htmlFor="date">Tanggal pembayaran</Label><Input id="date" type="date" min={minimumDate} aria-invalid={Boolean(errors.date)} aria-describedby={errors.date ? "date-error" : undefined} {...register("date")} />{error("date")}</div>
       <div className="space-y-2"><Label htmlFor="amount">Jumlah pembayaran</Label><Controller name="amount" control={control} render={({ field }) => <MoneyInput id="amount" value={field.value} onChange={field.onChange} onBlur={field.onBlur} invalid={Boolean(errors.amount)} />} />{error("amount")}<p className="text-sm text-muted-foreground">Dalam Rupiah. Bisa dibayar sebagian, paling banyak sebesar sisa tagihan.</p></div>
       <div className="space-y-2"><Label htmlFor="cashAccountId">{labels.cashField}</Label><select id="cashAccountId" className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-invalid={Boolean(errors.cashAccountId)} aria-describedby={errors.cashAccountId ? "cashAccountId-error" : undefined} {...register("cashAccountId")}><option value="">Pilih Kas/Bank</option>{accounts.map(account => <option key={account.id} value={account.id}>{account.name}</option>)}</select>{error("cashAccountId")}</div>

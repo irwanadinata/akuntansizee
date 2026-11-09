@@ -12,7 +12,7 @@ Pembukuan baru dimulai dengan **saldo Rp0 tanpa jurnal**. Seed hanya menyiapkan 
 | Piutang Customer | Tagihan, pembayaran sebagian/penuh, sisa tagihan dan riwayat pembayaran. |
 | Utang Supplier | Tagihan dengan kategori Beban/HPP/Aset, pembayaran dan sisa utang. |
 | Pinjaman Karyawan | Pinjaman, cicilan, sisa otomatis dan status pelunasan. |
-| Jurnal | Draf, posting, jurnal otomatis dan koreksi melalui jurnal pembalik. |
+| Jurnal | Nomor jurnal manual, langsung posting, serta pengeditan jurnal dan transaksi asal dengan audit sebelum/sesudah. |
 | Buku Besar | Filter akun/tahun/tanggal, saldo sebelum periode dan saldo berjalan. |
 | Neraca | Posisi keuangan per tanggal, saldo lintas tahun dan laba berjalan. |
 | Laba Rugi | Pendapatan, HPP, laba kotor, beban, hasil lainnya dan laba bersih. |
@@ -105,9 +105,9 @@ Buka [http://localhost:3000](http://localhost:3000), masuk menggunakan admin yan
 
 ## Aturan pembukuan
 
-- Saldo dan laporan bersumber dari jurnal dengan `postingStatus = POSTED`; draf tidak memengaruhi saldo. Jurnal asal yang dibalik tetap dihitung pada tanggal asal dan jurnal pembalik pada tanggal efektifnya.
+- Saldo dan laporan bersumber dari jurnal dengan `postingStatus = POSTED`; semua jurnal baru langsung terposting saat penyimpanan berhasil. Riwayat jurnal pembalik dari versi sebelumnya tetap dihitung pada tanggal efektifnya untuk menjaga ketepatan laporan historis.
 - Posting harus memenuhi total debit = total kredit dan total positif. Nominal memakai Rupiah bulat, bukan perhitungan floating point.
-- Jurnal terposting tidak dapat diedit/dihapus. Koreksi dilakukan melalui pembalik yang menautkan jurnal asal. Jurnal otomatis dikoreksi melalui modul transaksi pemiliknya.
+- Jurnal terposting dapat diedit pada tahun terbuka. Perubahan manual serta tagihan, pembayaran, pinjaman dan cicilan disimpan atomik bersama jurnal dan audit nilai sebelum/sesudah. Pengeditan versi basi, saldo historis negatif dan jurnal lama yang sudah dibatalkan ditolak. Fitur pembuatan jurnal pembalik beserta pembatalan tagihan, pembayaran, pinjaman dan cicilan telah dihapus. Periksa isian sebelum menyimpan atau posting. Riwayat lama tetap dapat dibaca dan diperhitungkan; struktur database dan migrasi lama dipertahankan untuk kompatibilitas data.
 - Mutasi subledger, jurnal, audit dan hasil idempotency berada dalam transaksi database atomik. Penguncian dan validasi sisa melindungi pembayaran/cicilan dari overpayment simultan.
 - Akun kontrol Piutang Usaha, Utang Usaha dan Piutang Karyawan diblokir pada jurnal manual dan pembukaan agregat tanpa rincian subledger.
 - Tahun terkunci menolak posting/backdate. Mengunci tahun **tidak membuat jurnal penutup otomatis**.
@@ -117,16 +117,16 @@ Buka [http://localhost:3000](http://localhost:3000), masuk menggunakan admin yan
 
 ### Nomor transaksi
 
-Nomor dibuat server-side menggunakan `node:crypto` dengan format **`PREFIX-YYYYMMDD-RANDOM`**, tanggal pembuatan WIB dan bagian acak 12 karakter. ID relasi internal tetap UUID.
+Nomor jurnal manual wajib diisi pengguna (maksimal 40 karakter, huruf/angka dan pemisah `./_-`, dinormalisasi huruf besar). Pada formulir transaksi otomatis dan saldo pembukaan, nomor jurnal dapat diisi pengguna; bila kosong, server membuatnya. Nomor bisnis tetap dibuat server menggunakan `node:crypto` dengan format **`PREFIX-YYYYMMDD-RANDOM`**, tanggal pembuatan WIB dan bagian acak 12 karakter. ID relasi internal tetap UUID.
 
 | Prefix | Transaksi |
 | --- | --- |
-| `JRN` | Jurnal, termasuk setiap jurnal otomatis dan jurnal pembalik. |
+| `JRN` | Jurnal manual dan setiap jurnal otomatis. |
 | `PJM` / `CIC` | Pinjaman karyawan / cicilan. |
 | `PIU` / `BYC` | Tagihan customer / pembayaran customer. |
 | `UTG` / `BYS` | Tagihan supplier / pembayaran supplier. |
 
-Nomor memiliki unique constraint DB dan retry collision maksimal lima percobaan. Idempotency key yang sama dengan isi sama mengembalikan hasil yang sama; isi berbeda ditolak. Nomor tetap saat edit draf, posting, refresh dan ekspor. Buku Besar diurutkan dengan tanggal/timestamp/id, bukan nomor acak.
+Nomor memiliki unique constraint DB. Benturan nomor otomatis dicoba ulang maksimal lima kali; nomor manual yang duplikat langsung ditolak. Idempotency key yang sama dengan isi sama mengembalikan hasil yang sama; isi berbeda ditolak. Nomor jurnal dapat diganti saat pengeditan; nomor sebelumnya tetap dipesan dan tersimpan pada audit agar tidak digunakan ulang. Nomor bisnis, refresh dan ekspor tidak mengubah nomor tersimpan. Buku Besar diurutkan dengan tanggal/timestamp/id, bukan nomor acak.
 
 ### COA yang disahkan
 
@@ -139,7 +139,7 @@ Sumber `prisma/coa-source.json` dan `referensi/COA.xlsx` memuat 91 akun dengan d
 | Perlengkapan Kantor | `1130.1` |
 | Pajak Dibayar di Muka PPh 23 | `1130.3` |
 
-Kontra akun memakai saldo normal dan kelompok yang disahkan. Selisih kurs/pelepasan aset memakai hasil neto `OTHER_RESULT`; pajak penghasilan memiliki kelompok tersendiri. Seed menolak keputusan yang belum disetujui/tidak lengkap atau konflik identitas akun. Akun yang pernah dipakai tetap terlindungi meskipun draf asal dihapus; gunakan nonaktifkan untuk menghentikan pemakaian baru.
+Kontra akun memakai saldo normal dan kelompok yang disahkan. Selisih kurs/pelepasan aset memakai hasil neto `OTHER_RESULT`; pajak penghasilan memiliki kelompok tersendiri. Seed menolak keputusan yang belum disetujui/tidak lengkap atau konflik identitas akun. Akun yang pernah dipakai tetap terlindungi meskipun jurnal asal kemudian diperbarui; gunakan nonaktifkan untuk menghentikan pemakaian baru.
 
 Rincian: [Keputusan Data](docs/06-keputusan-data.md) dan [Penyelesaian Konflik COA](docs/11-penyelesaian-konflik-coa.md). Jangan mengubah sumber Excel/JSON atau mengesahkan ulang mapping secara otomatis.
 
@@ -251,3 +251,9 @@ docs/                    PRD, aturan akuntansi, panduan dan laporan implementasi
 ```
 
 Dokumen acuan: [PRD](docs/01-prd.md), [Aturan Akuntansi](docs/02-aturan-akuntansi.md), [Database dan Seed](docs/03-database-dan-seed.md), [UI/UX](docs/04-ui-ux.md), [Acceptance Test](docs/05-acceptance-test.md), [Keputusan Data](docs/06-keputusan-data.md) serta [Neon dan Nomor Otomatis](docs/07-neon-dan-nomor-otomatis.md).
+
+## Revisi jurnal 9 November 2026
+
+Migrasi `20261109000000_editable_posted_journals` menambahkan validasi nomor manual dan audit pengeditan dalam transaksi yang sama. Migrasi tidak mengubah atau memposting data lama. Catatan lama yang belum terposting dapat dilengkapi melalui editor dan disimpan langsung; tanggal cutover saldo pembukaan tetap. Tidak ada perubahan data aplikasi ketika menjalankan pengujian lokal.
+
+`npm run test:integration:local` menjalankan seluruh tes integrasi pada cluster PostgreSQL lokal sekali pakai, melalui adapter Neon dan proxy loopback. Instal PostgreSQL terlebih dahulu; set `PG_BIN` bila direktori bin berbeda. Runner tidak menggunakan target database pada `.env` dan membersihkan cluster uji setelah selesai.

@@ -28,7 +28,7 @@ export function TradeDocumentForm({ kind, accounts, today }: { kind: TradeKind; 
   const { submit, pending, message, saved, clearMessage } = useTradeSubmission(kind, "CREATE_DOCUMENT");
   const { register, control, handleSubmit, formState: { errors, isDirty } } = useForm<DocumentInput, unknown, DocumentValues>({
     resolver: zodResolver(documentFields(kind)),
-    defaultValues: { partyName: "", date: today, dueDate: "", amount: "", counterAccountId: "", externalReference: "", notes: "" },
+    defaultValues: { journalNumber:"", partyName: "", date: today, dueDate: "", amount: "", counterAccountId: "", externalReference: "", notes: "" },
   });
   const panel = usePanelForm({ dirty: isDirty || review !== null, pending, saved: Boolean(saved) });
   const surface = panel ? "space-y-5" : "max-w-2xl space-y-5 rounded-xl border bg-card p-5 sm:p-7";
@@ -65,7 +65,7 @@ export function TradeDocumentForm({ kind, accounts, today }: { kind: TradeKind; 
         {review.externalReference && <div><dt className="text-muted-foreground">{labels.externalField}</dt><dd className="mt-1 break-all">{review.externalReference}</dd></div>}
         {review.notes && <div><dt className="text-muted-foreground">Catatan</dt><dd className="mt-1 whitespace-pre-wrap">{review.notes}</dd></div>}
       </dl>
-      <p className="text-sm text-muted-foreground">Jurnal dicatat otomatis. Setelah disimpan, koreksi dilakukan melalui pembatalan dengan jurnal pembalik.</p>
+      <p className="text-sm text-muted-foreground">Jurnal langsung dicatat saat penyimpanan. Transaksi dapat diperbarui melalui Ubah jurnal.</p>
       {message && <p role="alert" className="rounded-lg border p-3 text-sm">{message}</p>}
       <div className={actions}>
         <Button loading={pending} type="button" disabled={pending} onClick={() => submit(review)}>{pending ? "Menyimpan…" : "Simpan & Catat"}</Button>
@@ -76,6 +76,7 @@ export function TradeDocumentForm({ kind, accounts, today }: { kind: TradeKind; 
 
   return (
     <form noValidate onSubmit={event => { void handleSubmit(values => { clearMessage(); setReview(values); })(event); }} className={surface}>
+      <div className="space-y-2"><Label htmlFor="journalNumber">Nomor jurnal (opsional)</Label><Input id="journalNumber" {...register("journalNumber")} maxLength={40} placeholder="Contoh: JU/2026/001" autoComplete="off"/><p className="text-sm text-muted-foreground">Isi nomor unik, atau kosongkan agar dibuat otomatis.</p>{fieldError("journalNumber")}</div>
       <div className="space-y-2">
         <Label htmlFor="partyName">{labels.partyField}</Label>
         <Input id="partyName" maxLength={200} aria-invalid={Boolean(errors.partyName)} aria-describedby={errors.partyName ? "partyName-error" : undefined} {...register("partyName")} />
