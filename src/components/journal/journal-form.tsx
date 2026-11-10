@@ -3,7 +3,7 @@ import Link from "@/components/year-link";
 import { useFiscalHref } from "@/components/use-fiscal-href";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { journalFields, assertBalanced } from "@/lib/journal/validation";
@@ -12,6 +12,7 @@ import { journalAction } from "@/app/(admin)/jurnal/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AccountSelect } from "@/components/coa/account-select";
 const schema = z.object({ ...journalFields, reason: z.string().trim().max(1000).default("") }).superRefine((value,ctx)=>{try{assertBalanced(value.lines);}catch(error){ctx.addIssue({code:"custom",path:["lines"],message:(error as Error).message});}});
 type FormInput = z.input<typeof schema>;
 type FormOutput = z.output<typeof schema>;
@@ -45,7 +46,7 @@ export function JournalForm({ accounts, today, initial, fixedDate = false }: { a
     <div className="grid gap-4 sm:grid-cols-[220px_1fr]"><div className="space-y-2"><Label htmlFor="date">Tanggal transaksi</Label><Input id="date" type="date" readOnly={fixedDate} {...register("date")} /><p role="alert" className="text-sm text-destructive">{errors.date?.message}</p></div>
       <div className="space-y-2"><Label htmlFor="description">Uraian jurnal</Label><Input id="description" {...register("description")} maxLength={2000} /><p role="alert" className="text-sm text-destructive">{errors.description?.message}</p></div></div>
     <div className="overflow-x-auto"><table className="w-full min-w-[800px] text-left text-sm"><caption className="sr-only">Rincian debit dan kredit</caption><thead><tr>{["Akun", "Keterangan baris (opsional)", "Debit (Rp)", "Kredit (Rp)", ""].map((label, i) => <th key={i} className="p-2">{label}</th>)}</tr></thead><tbody>{fields.map((field, index) => <tr key={field.id} className="align-top">
-      <td className="min-w-56 p-2"><select aria-label={"Akun baris " + (index + 1)} className="h-11 w-full rounded-lg border bg-background px-2" {...register(`lines.${index}.accountId`)}><option value="">Pilih akun</option>{accounts.map(account => <option key={account.id} value={account.id}>{account.code} · {account.name}</option>)}</select><p className="text-destructive">{errors.lines?.[index]?.accountId?.message}</p></td>
+      <td className="min-w-56 p-2"><Controller control={control} name={`lines.${index}.accountId`} render={({field})=><AccountSelect {...field} accounts={accounts} aria-label={"Akun baris " + (index + 1)} invalid={Boolean(errors.lines?.[index]?.accountId)} disabled={pending}/>}/><p className="text-destructive">{errors.lines?.[index]?.accountId?.message}</p></td>
       <td className="p-2"><Input aria-label={"Keterangan baris " + (index + 1)} {...register(`lines.${index}.description`)} maxLength={500} /></td>
       {(["debit", "credit"] as const).map(side => <td key={side} className="min-w-36 p-2"><Input aria-label={(side === "debit" ? "Debit" : "Kredit") + " baris " + (index + 1)} inputMode="numeric" {...register(`lines.${index}.${side}`, { onBlur: event => { try { setValue(`lines.${index}.${side}`, formatInteger(rupiah(event.target.value))); } catch { /* Validation supplies the message. */ } } })} /><p className="text-destructive">{errors.lines?.[index]?.[side]?.message}</p></td>)}
       <td className="p-2"><Button type="button" variant="ghost" disabled={fields.length <= 2 || pending} onClick={() => remove(index)} aria-label={"Hapus baris " + (index + 1)}>Hapus</Button></td></tr>)}</tbody></table></div>

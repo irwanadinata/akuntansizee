@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MoneyInput } from "@/components/loans/money-input";
+import { AccountSelect } from "@/components/coa/account-select";
 import { openingFields } from "@/lib/opening/validation";
 import { isOpeningCapital, isOpeningCash, simpleOpeningFields, type OpeningAccount } from "@/lib/opening/simple";
 import type { OpeningPreview, OpeningResult } from "@/lib/opening/engine";
@@ -154,18 +155,12 @@ export function OpeningForm({ accounts, year, today }: {
             </div>
             <div className="space-y-2">
               <Label htmlFor="opening-cash">Simpan saldo di</Label>
-              <select id="opening-cash" className="h-11 w-full min-w-0 rounded-lg border bg-background px-2 text-sm" {...simple.register("cashAccountId")}>
-                <option value="">Pilih kas/bank</option>
-                {cashAccounts.map(account => <option key={account.id} value={account.id}>{account.code} · {account.name}</option>)}
-              </select>
+              <Controller control={simple.control} name="cashAccountId" render={({field})=><AccountSelect {...field} id="opening-cash" accounts={cashAccounts} placeholder="Pilih kas/bank" disabled={pending} invalid={Boolean(simpleErrors.cashAccountId)}/>}/>
               <p role="alert" className="text-sm text-destructive">{simpleErrors.cashAccountId?.message}</p>
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="opening-capital">Modal milik</Label>
-              <select id="opening-capital" className="h-11 w-full min-w-0 rounded-lg border bg-background px-2 text-sm" {...simple.register("capitalAccountId")}>
-                <option value="">Pilih akun modal pemilik</option>
-                {capitalAccounts.map(account => <option key={account.id} value={account.id}>{account.code} · {account.name}</option>)}
-              </select>
+              <Controller control={simple.control} name="capitalAccountId" render={({field})=><AccountSelect {...field} id="opening-capital" accounts={capitalAccounts} placeholder="Pilih akun modal pemilik" disabled={pending} invalid={Boolean(simpleErrors.capitalAccountId)}/>}/>
               <p className="text-sm text-muted-foreground">Pilih pemilik yang sesuai dengan sumber uang awal.</p>
               <p role="alert" className="text-sm text-destructive">{simpleErrors.capitalAccountId?.message}</p>
             </div>
@@ -206,10 +201,7 @@ export function OpeningForm({ accounts, year, today }: {
           <thead><tr>{["Akun", "Posisi", "Nominal Rupiah", ""].map((text, index) => <th key={index} className="p-2">{text}</th>)}</tr></thead>
           <tbody>{fields.map((field, index) => <tr key={field.id} className="align-top">
             <td className="min-w-64 p-2">
-              <select aria-label={"Akun baris " + (index + 1)} className="h-11 w-full rounded-lg border bg-background px-2" {...manual.register(`lines.${index}.accountId`)}>
-                <option value="">Pilih akun</option>
-                {accounts.map(account => <option key={account.id} value={account.id}>{account.code} · {account.name}</option>)}
-              </select>
+              <Controller control={manual.control} name={`lines.${index}.accountId`} render={({field})=><AccountSelect {...field} accounts={accounts} aria-label={"Akun baris " + (index + 1)} disabled={pending} invalid={Boolean(manualErrors.lines?.[index]?.accountId)}/>}/>
               <p role="alert" className="text-destructive">{manualErrors.lines?.[index]?.accountId?.message}</p>
             </td>
             <td className="p-2"><select aria-label={"Posisi baris " + (index + 1)} className="h-11 rounded-lg border bg-background px-3" {...manual.register(`lines.${index}.side`)}><option value="DEBIT">Debit</option><option value="CREDIT">Kredit</option></select></td>

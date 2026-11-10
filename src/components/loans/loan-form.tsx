@@ -15,10 +15,11 @@ import { MoneyInput } from "./money-input";
 import { usePanelForm } from "@/components/transactions/panel-context";
 import { CreationCancel } from "@/components/transactions/creation-link";
 import { cn } from "@/lib/utils";
+import { AccountSelect, type AccountChoice } from "@/components/coa/account-select";
 const formSchema = paymentFields.extend({ employeeName: z.string().default(""), dueDate: z.string().default("") });
 type Values = z.output<typeof formSchema>;
 type InputValues = z.input<typeof formSchema>;
-export function LoanForm({ accounts,today,loan }: { accounts:{id:string;name:string}[];today:string;loan?:{id:string;employeeName:string;remaining:string} }) {
+export function LoanForm({ accounts,today,loan }: { accounts:AccountChoice[];today:string;loan?:{id:string;employeeName:string;remaining:string} }) {
   const [review,setReview]=useState<Values|null>(null), [message,setMessage]=useState(""), [saved,setSaved]=useState<{id:string;number:string}|null>(null), [pending,startTransition]=useTransition();
   const request=useRef({fingerprint:"",key:""});
   const { register,control,handleSubmit,setError,formState:{errors,isDirty} }=useForm<InputValues,unknown,Values>({ resolver:zodResolver(formSchema),defaultValues:{ journalNumber:"",date:today,amount:"",cashAccountId:"",notes:"",employeeName:loan?.employeeName ?? "",dueDate:"" } });
@@ -45,7 +46,7 @@ export function LoanForm({ accounts,today,loan }: { accounts:{id:string;name:str
     <div className="space-y-2"><Label htmlFor="journalNumber">Nomor jurnal (opsional)</Label><Input id="journalNumber" {...register("journalNumber")} maxLength={40} placeholder="Contoh: JU/2026/001" autoComplete="off"/><p className="text-sm text-muted-foreground">Isi nomor unik, atau kosongkan agar dibuat otomatis.</p>{error("journalNumber")}</div>
     <div className="space-y-2"><Label htmlFor="date">{loan?"Tanggal cicilan":"Tanggal pinjam"}</Label><Input id="date" type="date" {...register("date")}/>{error("date")}</div>
     <div className="space-y-2"><Label htmlFor="amount">{loan?"Jumlah cicilan":"Jumlah pinjaman"}</Label><Controller control={control} name="amount" render={({field})=><MoneyInput id="amount" value={field.value} onChange={field.onChange} onBlur={field.onBlur} invalid={Boolean(errors.amount)}/>}/>{error("amount")}<p className="text-sm text-muted-foreground">Dalam Rupiah, tanpa pecahan.</p></div>
-    <div className="space-y-2"><Label htmlFor="cashAccountId">{loan?"Uang diterima di":"Uang dikeluarkan dari"}</Label><select id="cashAccountId" className="h-11 w-full rounded-lg border bg-background px-3 text-sm" {...register("cashAccountId")}><option value="">Pilih Kas/Bank</option>{accounts.map(account=><option key={account.id} value={account.id}>{account.name}</option>)}</select>{error("cashAccountId")}</div>
+    <div className="space-y-2"><Label htmlFor="cashAccountId">{loan?"Uang diterima di":"Uang dikeluarkan dari"}</Label><Controller control={control} name="cashAccountId" render={({field})=><AccountSelect {...field} id="cashAccountId" accounts={accounts} placeholder="Pilih Kas/Bank" invalid={Boolean(errors.cashAccountId)} disabled={pending}/>}/>{error("cashAccountId")}</div>
     <div className="space-y-2"><Label htmlFor="notes">Catatan (opsional)</Label><textarea id="notes" rows={3} className="w-full rounded-lg border bg-background p-3 text-sm" {...register("notes")} maxLength={1000}/>{error("notes")}</div>
     {!loan && <div className="space-y-2"><Label htmlFor="dueDate">Jatuh tempo (opsional)</Label><Input id="dueDate" type="date" {...register("dueDate")}/>{error("dueDate")}</div>}
     {!accounts.length && <p className="text-sm text-destructive">Belum ada Kas/Bank aktif yang tersedia. Periksa COA.</p>}

@@ -14,12 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { tradeLabels } from "./labels";
 import { useTradeSubmission } from "./use-trade-submission";
+import { AccountSelect, type AccountChoice } from "@/components/coa/account-select";
 
 type PaymentInput = z.input<typeof paymentFields>;
 type PaymentValues = z.output<typeof paymentFields>;
 type DocumentSummary = { id: string; partyName: string; documentNumber: string; remaining: string };
 
-export function TradePaymentForm({ kind, accounts, today, minimumDate, document }: { kind: TradeKind; accounts: { id: string; name: string }[]; today: string; minimumDate: string; document: DocumentSummary }) {
+export function TradePaymentForm({ kind, accounts, today, minimumDate, document }: { kind: TradeKind; accounts: AccountChoice[]; today: string; minimumDate: string; document: DocumentSummary }) {
   const labels = tradeLabels(kind);
   const [review, setReview] = useState<PaymentValues | null>(null);
   const { submit, pending, message, saved, clearMessage } = useTradeSubmission(kind, "CREATE_PAYMENT");
@@ -71,7 +72,7 @@ export function TradePaymentForm({ kind, accounts, today, minimumDate, document 
       <div className="space-y-2"><Label htmlFor="journalNumber">Nomor jurnal (opsional)</Label><Input id="journalNumber" {...register("journalNumber")} maxLength={40} placeholder="Contoh: JU/2026/001" autoComplete="off"/><p className="text-sm text-muted-foreground">Isi nomor unik, atau kosongkan agar dibuat otomatis.</p>{error("journalNumber")}</div>
       <div className="space-y-2"><Label htmlFor="date">Tanggal pembayaran</Label><Input id="date" type="date" min={minimumDate} aria-invalid={Boolean(errors.date)} aria-describedby={errors.date ? "date-error" : undefined} {...register("date")} />{error("date")}</div>
       <div className="space-y-2"><Label htmlFor="amount">Jumlah pembayaran</Label><Controller name="amount" control={control} render={({ field }) => <MoneyInput id="amount" value={field.value} onChange={field.onChange} onBlur={field.onBlur} invalid={Boolean(errors.amount)} />} />{error("amount")}<p className="text-sm text-muted-foreground">Dalam Rupiah. Bisa dibayar sebagian, paling banyak sebesar sisa tagihan.</p></div>
-      <div className="space-y-2"><Label htmlFor="cashAccountId">{labels.cashField}</Label><select id="cashAccountId" className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-invalid={Boolean(errors.cashAccountId)} aria-describedby={errors.cashAccountId ? "cashAccountId-error" : undefined} {...register("cashAccountId")}><option value="">Pilih Kas/Bank</option>{accounts.map(account => <option key={account.id} value={account.id}>{account.name}</option>)}</select>{error("cashAccountId")}</div>
+      <div className="space-y-2"><Label htmlFor="cashAccountId">{labels.cashField}</Label><Controller control={control} name="cashAccountId" render={({field})=><AccountSelect {...field} id="cashAccountId" accounts={accounts} placeholder="Pilih Kas/Bank" disabled={pending} invalid={Boolean(errors.cashAccountId)} aria-describedby={errors.cashAccountId ? "cashAccountId-error" : undefined}/>}/>{error("cashAccountId")}</div>
       <div className="space-y-2"><Label htmlFor="notes">Catatan / bukti pembayaran (opsional)</Label><textarea id="notes" rows={3} maxLength={1000} className="w-full rounded-lg border border-input bg-background p-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-invalid={Boolean(errors.notes)} {...register("notes")} />{error("notes")}<p className="text-sm text-muted-foreground">Tuliskan keterangan atau referensi bukti pembayaran jika ada.</p></div>
       {!accounts.length && <p role="alert" className="text-sm text-destructive">Belum ada Kas/Bank aktif yang tersedia. Periksa Daftar Akun terlebih dahulu.</p>}
       <p className="text-sm text-muted-foreground">Nomor pembayaran dibuat otomatis saat disimpan.</p>

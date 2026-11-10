@@ -20,7 +20,7 @@ export async function loanList(db: PrismaClient, input: z.infer<typeof loanFilte
 }
 export function cashChoices(db: PrismaClient) {
   return db.account.findMany({ where: { isActive: true, mainType: "ASSET", reportGroup: "CASH_BANK", normalBalance: "DEBIT", isContra: false, isControlAccount: false,
-    OR: [{ requiresReview: false }, { reviewedAt: { not: null } }] }, select: { id: true, name: true }, orderBy: { name: "asc" } });
+    OR: [{ requiresReview: false }, { reviewedAt: { not: null } }] }, select: { id: true, code: true, name: true }, orderBy: { name: "asc" } });
 }
 export async function loanDetail(db: PrismaClient, id: string, requestedPage=1) {
   return db.$transaction(async tx => {

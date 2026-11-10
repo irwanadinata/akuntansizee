@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
+import { selectAccount } from "./qa-select-account.mjs";
 
 const cases = [
   { kind: "loan", path: "/pinjaman-karyawan", title: "Catat Pinjaman", trigger: /Catat Pinjaman/, field: "employeeName", name: "Karyawan Panel QA", amount: "2000000", choice: "cashAccountId", prefix: "PJM" },
@@ -63,7 +64,7 @@ export async function checkCreationPanels({ page, db, origin, screenshots, pass 
     assert.ok((await panel.getByRole("alert").allTextContents()).some(text => text.trim()), "Empty form has inline validation");
     await panel.locator("#" + item.field).fill(item.name);
     await panel.locator("#amount").fill(item.amount);
-    await panel.locator("#" + item.choice).selectOption({ index: 1 });
+    await selectAccount(panel, "#" + item.choice);
     await page.screenshot({ path: join(screenshots, "creation-" + item.kind + "-desktop.png"), caret: "initial" });
     await panel.getByRole("button", { name: "Tutup formulir", exact: true }).click();
     await panel.getByRole("heading", { name: "Tutup formulir?", exact: true }).waitFor();

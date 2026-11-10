@@ -17,10 +17,11 @@ import { useTradeSubmission } from "./use-trade-submission";
 import { usePanelForm } from "@/components/transactions/panel-context";
 import { CreationCancel } from "@/components/transactions/creation-link";
 import { cn } from "@/lib/utils";
+import { AccountSelect, type AccountChoice } from "@/components/coa/account-select";
 
 type DocumentInput = z.input<ReturnType<typeof documentFields>>;
 type DocumentValues = z.output<ReturnType<typeof documentFields>>;
-type CounterChoice = { id: string; name: string; mainType: string; reportGroup: string };
+type CounterChoice = AccountChoice & { mainType: string; reportGroup: string };
 
 export function TradeDocumentForm({ kind, accounts, today }: { kind: TradeKind; accounts: CounterChoice[]; today: string }) {
   const labels = tradeLabels(kind);
@@ -95,13 +96,10 @@ export function TradeDocumentForm({ kind, accounts, today }: { kind: TradeKind; 
       </div>
       <div className="space-y-2">
         <Label htmlFor="counterAccountId">{labels.counterField}</Label>
-        <select id="counterAccountId" className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-invalid={Boolean(errors.counterAccountId)} aria-describedby={errors.counterAccountId ? "counterAccountId-error" : undefined} {...register("counterAccountId")}>
-          <option value="">{kind === "RECEIVABLE" ? "Pilih pendapatan" : "Pilih kategori pengeluaran"}</option>
-          {groups.map(group => {
-            const choices = accounts.filter(account => account.mainType === group.type);
-            return choices.length ? <optgroup label={group.title} key={group.type}>{choices.map(account => <option key={account.id} value={account.id}>{account.name}</option>)}</optgroup> : null;
-          })}
-        </select>
+        <Controller control={control} name="counterAccountId" render={({field})=><AccountSelect {...field} id="counterAccountId"
+          accounts={groups.flatMap(group=>accounts.filter(account=>account.mainType===group.type).map(account=>({...account,group:group.title})))}
+          placeholder={kind === "RECEIVABLE" ? "Pilih pendapatan" : "Pilih kategori pengeluaran"} disabled={pending}
+          invalid={Boolean(errors.counterAccountId)} aria-describedby={errors.counterAccountId ? "counterAccountId-error" : undefined}/>}/>
         {fieldError("counterAccountId")}
         {kind === "PAYABLE" && <p className="text-sm text-muted-foreground">Pilih biaya kegiatan, biaya operasional, atau aset sesuai isi tagihan.</p>}
       </div>

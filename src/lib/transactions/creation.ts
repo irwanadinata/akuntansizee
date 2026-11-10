@@ -8,7 +8,7 @@ export const creationOptions = {
   payable: { title: "Catat Tagihan Supplier", description: "Isi nama supplier, jumlah tagihan, dan kategori pengeluaran.", href: "/utang-supplier/baru" },
 } satisfies Record<CreationKind, { title: string; description: string; href: string }>;
 
-type AccountChoice = { id: string; name: string };
+type AccountChoice = { id: string; code: string; name: string };
 export type CreationData =
   | { kind: "account" }
   | { kind: "loan"; today: string; accounts: AccountChoice[] }

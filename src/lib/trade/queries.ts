@@ -26,7 +26,7 @@ export async function tradeList(db: PrismaClient, kind: TradeKind, input: z.infe
 export function counterChoices(db: PrismaClient, kind: TradeKind) {
   const policy: Prisma.AccountWhereInput = kind === "RECEIVABLE" ? { mainType:"REVENUE",normalBalance:"CREDIT" } : { mainType:{ in:["EXPENSE","COGS","ASSET"] },normalBalance:"DEBIT",reportGroup:{not:"CASH_BANK"} };
   return db.account.findMany({ where: { ...policy,isActive:true,isControlAccount:false,isContra:false,OR:[{requiresReview:false},{reviewedAt:{not:null}}] },
-    select:{id:true,name:true,mainType:true,reportGroup:true},orderBy:[{mainType:"asc"},{name:"asc"}] });
+    select:{id:true,code:true,name:true,mainType:true,reportGroup:true},orderBy:[{mainType:"asc"},{name:"asc"}] });
 }
 export async function tradeDetail(db: PrismaClient, kind: TradeKind, id: string, requestedPage=1) {
   return db.$transaction(async tx => {

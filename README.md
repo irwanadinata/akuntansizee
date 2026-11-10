@@ -25,6 +25,8 @@ Nama karyawan, customer dan supplier disimpan langsung pada transaksi. Tidak dip
 
 UI berbahasa Indonesia menggunakan format Rupiah bulat, tanggal bisnis **Asia/Jakarta**, sidebar responsif dan filter tahun yang dipertahankan antar-menu. Tambah tagihan, pinjaman dan akun COA dari daftar membuka **panel dari kanan**, dengan halaman daftar tetap terlihat. Filter, navigasi, penyimpanan, login/logout, pergantian tahun dan PDF memiliki indikator loading. Form transaksi harian memakai langkah isi → periksa → simpan; debit/kredit manual tersedia pada menu Jurnal lanjutan.
 
+Pilihan akun pada jurnal, saldo pembukaan, pinjaman/cicilan, tagihan customer/supplier dan pembayaran dapat dicari: buka pilihan akun, ketik kode atau nama, lalu klik hasilnya atau gunakan tombol panah dan Enter. Escape menutup pencarian tanpa mengubah akun yang sudah dipilih. Daftar tetap mengikuti akun yang diperbolehkan untuk transaksi tersebut.
+
 Panduan penggunaan: [Panduan Admin](docs/09-panduan-admin.md). Buku panduan PDF 44 halaman dapat diunduh setelah login melalui tombol **Download Panduan** pada navbar. File yang disertakan dalam deployment berada di `assets/guides/buku-panduan.pdf` dan dilayani melalui `/panduan`.
 
 ## Stack dan kebutuhan
