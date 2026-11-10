@@ -113,7 +113,7 @@ Buka [http://localhost:3000](http://localhost:3000), masuk menggunakan admin yan
 - Tahun terkunci menolak posting/backdate. Mengunci tahun **tidak membuat jurnal penutup otomatis**.
 - Tidak ada saldo akun yang dapat diedit, akun penyeimbang otomatis atau impor angka dari laporan contoh 2025. Jika laporan/kontrol berselisih, tampilkan dan telusuri selisihnya.
 
-**Saldo Pembukaan opsional:** admin memasukkan angka historis terverifikasi, tanggal cutover dan rujukan verifikasi, memeriksa preview, lalu mengonfirmasi posting. Total harus seimbang dan positif, tahun terbuka, akun aktif serta klasifikasi sudah disahkan. Marker perusahaan dan idempotency mencegah posting kedua, termasuk setelah jurnal pembukaan dibalik. Buku baru dapat langsung bertransaksi tanpa proses ini.
+**Saldo Pembukaan opsional:** mode Sederhana cukup satu nominal saldo kas/bank awal dari modal pemilik; server membuat debit Kas/Bank dan kredit Modal dengan nominal sama. Tanggal awal default 1 Januari pada Tahun Buku yang dipilih; tanggal, kas/bank, pemilik modal dan catatan opsional tersedia di Pengaturan tanggal & akun. Jika ada beberapa akun modal, admin memilih pemilik yang benar; sistem tidak memilih pemilik secara sembarang. Preview dan konfirmasi wajib sebelum simpan, nomor jurnal otomatis. Mode Rincian per akun tetap tersedia untuk saldo historis terverifikasi yang lebih lengkap, dengan rujukan verifikasi dan jurnal seimbang. Tahun harus terbuka, akun aktif serta klasifikasi sudah disahkan. Marker perusahaan dan idempotency mencegah posting kedua, termasuk setelah jurnal pembukaan dibalik. Buku baru dapat langsung bertransaksi tanpa proses ini.
 
 ### Nomor transaksi
 

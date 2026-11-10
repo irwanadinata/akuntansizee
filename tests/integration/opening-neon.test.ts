@@ -10,7 +10,7 @@ import { buildSeedPlan } from "../../src/lib/coa/seed-plan";
 import { executeJournalCommand,reserve,writeLines,audit } from "../../src/lib/journal/engine";
 import { newJournalNumber } from "../../src/lib/journal/identity";
 import { openingFields,openingLines } from "../../src/lib/opening/validation";
-import { postOpening,previewOpening } from "../../src/lib/opening/engine";
+import { postOpening,previewOpening,previewSimpleOpening } from "../../src/lib/opening/engine";
 import { financialReport } from "../../src/lib/reports/engine";
 import { ledgerReport } from "../../src/lib/ledger/report";
 import { editAccountInTransaction } from "../../src/lib/coa/mutations";
@@ -32,6 +32,15 @@ test("Neon: saldo pembukaan opsional, terverifikasi, atomik dan sekali per perus
     await t.test("buku baru tetap nol; preview tidak membuat jurnal, nomor atau audit keuangan",async()=>{
       const before=await counts(),report=await financialReport(db,{year:2037,from:"2037-01-01",to:"2037-12-31"});assert.equal(report.balance.totalAssets,"0");assert.equal(report.sourceCount,0);assert.equal(before.markers,0);
       const preview=await previewOpening(db,raw);assert.equal(preview.totalDebit,"3000000");assert.equal(preview.totalCredit,"3000000");assert.deepEqual(await counts(),before);
+    });
+    await t.test("satu nominal membuat preview kas/modal; akun selain kas/modal ditolak tanpa menulis data",async()=>{
+      const before=await counts(),value={fiscalYearId:fiscal.id,cutoverDate:"2037-01-01",cashAccountId:cash.id,capitalAccountId:capital.id,amount:"2.000.000"};
+      const simple=await previewSimpleOpening(db,value);
+      assert.equal(simple.totalDebit,"2000000");assert.equal(simple.totalCredit,"2000000");
+      assert.deepEqual(simple.input.lines,[{accountId:cash.id,side:"DEBIT",amount:"2000000"},{accountId:capital.id,side:"CREDIT",amount:"2000000"}]);
+      await assert.rejects(previewSimpleOpening(db,{...value,cashAccountId:asset.id}),/kas\/bank/);
+      await assert.rejects(previewSimpleOpening(db,{...value,capitalAccountId:revenue.id}),/modal pemilik/);
+      assert.deepEqual(await counts(),before);
     });
     await t.test("tidak seimbang, nol, tanpa konfirmasi, tahun/tanggal salah dan locked ditolak atomik",async()=>{
       const before=await counts(),unbalanced={...raw,lines:raw.lines.map((line,index)=>index===3?{...line,amount:"2749999"}:line)};

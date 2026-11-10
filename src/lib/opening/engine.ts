@@ -5,6 +5,7 @@ import { accounts,openYear,reserve,writeLines,audit,type JournalDependencies } f
 import { boundedCommand,newJournalNumber,payloadHash } from "../journal/identity";
 import { JournalError,totals } from "../journal/validation";
 import { assertOpeningAccount,openingFields,openingLines,postOpeningSchema,type OpeningInput } from "./validation";
+import { simpleOpeningFields,simpleOpeningInput } from "./simple";
 const resultSchema=z.object({id:z.uuid(),journalNumber:z.string(),openingId:z.uuid()});
 export type OpeningResult=z.infer<typeof resultSchema>;
 async function prepare(tx:Prisma.TransactionClient,input:OpeningInput){
@@ -27,6 +28,11 @@ export async function previewOpening(db:PrismaClient,raw:unknown){
   },{timeout:20000});
 }
 export type OpeningPreview=Awaited<ReturnType<typeof previewOpening>>;
+export async function previewSimpleOpening(db:PrismaClient,raw:unknown){
+  const input=simpleOpeningFields.parse(raw);
+  const rows=await db.account.findMany({where:{id:{in:[input.cashAccountId,input.capitalAccountId]}}});
+  return previewOpening(db,simpleOpeningInput(input,rows));
+}
 export async function postOpening(db:PrismaClient,actorId:string,raw:unknown,dependencies:JournalDependencies={}):Promise<OpeningResult>{
   const parsed=postOpeningSchema.parse(raw),{requestKey,previewHash,confirmed,...input}=parsed;
   const fingerprint=payloadHash({input,previewHash,confirmed}),now=dependencies.now??(()=>new Date()),number=dependencies.number??newJournalNumber;

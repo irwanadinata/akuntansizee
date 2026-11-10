@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/auth/session";
 import { assertTrustedOrigin } from "@/lib/auth/origin";
 import { getAuthEnv } from "@/lib/env/server";
 import { getPrisma } from "@/lib/db";
-import { previewOpening,postOpening,type OpeningPreview,type OpeningResult } from "@/lib/opening/engine";
+import { previewOpening,previewSimpleOpening,postOpening,type OpeningPreview,type OpeningResult } from "@/lib/opening/engine";
 import { JournalError } from "@/lib/journal/validation";
 function message(error:unknown){
   if(error instanceof z.ZodError)return error.issues[0]?.message??"Isian tidak sah.";
@@ -16,6 +16,11 @@ function message(error:unknown){
 export async function previewOpeningAction(raw:unknown):Promise<{ok:boolean;message:string;preview?:OpeningPreview}>{
   await requireAdmin();
   try{assertTrustedOrigin((await headers()).get("origin"),getAuthEnv().APP_ORIGIN);return{ok:true,message:"Preview siap diperiksa. Belum ada jurnal disimpan.",preview:await previewOpening(getPrisma(),raw)};}
+  catch(error){return{ok:false,message:message(error)};}
+}
+export async function previewSimpleOpeningAction(raw:unknown):Promise<{ok:boolean;message:string;preview?:OpeningPreview}>{
+  await requireAdmin();
+  try{assertTrustedOrigin((await headers()).get("origin"),getAuthEnv().APP_ORIGIN);return{ok:true,message:"Saldo awal siap diperiksa. Belum ada jurnal disimpan.",preview:await previewSimpleOpening(getPrisma(),raw)};}
   catch(error){return{ok:false,message:message(error)};}
 }
 export async function postOpeningAction(raw:unknown):Promise<{ok:boolean;message:string;result?:OpeningResult}>{
