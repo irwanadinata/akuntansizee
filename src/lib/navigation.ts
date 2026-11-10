@@ -15,9 +15,10 @@ export const navigationGroups: { title: string; items: NavigationItem[] }[] = [
   {
     title: "Catat transaksi",
     items: [
-      { title: "Piutang Customer", href: "/piutang-customer", icon: "receivable", description: "Tagihan customer, pembayaran yang diterima, dan sisa tagihan." },
-      { title: "Utang Supplier", href: "/utang-supplier", icon: "payable", description: "Tagihan supplier, pembayaran, dan sisa yang perlu dibayar." },
-      { title: "Pinjaman Karyawan", href: "/pinjaman-karyawan", icon: "loan", description: "Pinjaman karyawan dan riwayat cicilannya." },
+      // Untuk menampilkan kembali ketiga menu di sidebar, hapus // pada tiga baris berikut.
+      // { title: "Piutang Customer", href: "/piutang-customer", icon: "receivable", description: "Tagihan customer, pembayaran yang diterima, dan sisa tagihan." },
+      // { title: "Utang Supplier", href: "/utang-supplier", icon: "payable", description: "Tagihan supplier, pembayaran, dan sisa yang perlu dibayar." },
+      // { title: "Pinjaman Karyawan", href: "/pinjaman-karyawan", icon: "loan", description: "Pinjaman karyawan dan riwayat cicilannya." },
       { title: "Jurnal", href: "/jurnal", icon: "journal", description: "Pencatatan jurnal untuk kebutuhan akuntansi lanjutan." },
     ],
   },

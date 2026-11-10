@@ -1,5 +1,6 @@
 import Link from "@/components/year-link";
-import { ArrowDownLeft, ArrowRight, ArrowUpRight, BookOpenCheck, Landmark, UsersRound, Wallet } from "lucide-react";
+import { ArrowRight, BookOpenCheck, Landmark, Wallet } from "lucide-react";
+// import { ArrowDownLeft, ArrowUpRight, UsersRound } from "lucide-react";
 
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
@@ -8,16 +9,20 @@ import { requireAdmin } from "@/lib/auth/session";
 
 const overview = [
   { title: "Kas & Bank", description: "Uang perusahaan", icon: Wallet, href: "/buku-besar" },
-  { title: "Piutang Customer", description: "Tagihan yang perlu diterima", icon: ArrowDownLeft, href: "/piutang-customer" },
-  { title: "Utang Supplier", description: "Tagihan yang perlu dibayar", icon: ArrowUpRight, href: "/utang-supplier" },
-  { title: "Pinjaman Karyawan", description: "Pinjaman dan cicilan", icon: UsersRound, href: "/pinjaman-karyawan" },
+  // Untuk menampilkan kembali tiga modul, buka komentar ikon di atas dan kartu di bawah.
+  // { title: "Piutang Customer", description: "Tagihan yang perlu diterima", icon: ArrowDownLeft, href: "/piutang-customer" },
+  // { title: "Utang Supplier", description: "Tagihan yang perlu dibayar", icon: ArrowUpRight, href: "/utang-supplier" },
+  // { title: "Pinjaman Karyawan", description: "Pinjaman dan cicilan", icon: UsersRound, href: "/pinjaman-karyawan" },
 ];
 
+// Buka juga komentar data shortcuts dan bagian Akses cepat untuk mengembalikannya.
+/*
 const shortcuts = [
   { title: "Piutang Customer", description: "Lihat tagihan dan penerimaan pembayaran.", href: "/piutang-customer", icon: ArrowDownLeft },
   { title: "Utang Supplier", description: "Lihat tagihan dan pembayaran supplier.", href: "/utang-supplier", icon: ArrowUpRight },
   { title: "Pinjaman Karyawan", description: "Lihat pinjaman dan riwayat cicilan.", href: "/pinjaman-karyawan", icon: UsersRound },
 ];
+*/
 
 export default async function HomePage() {
   await requireAdmin();
@@ -28,12 +33,13 @@ export default async function HomePage() {
         <div>
           <p className="mb-2 text-sm font-semibold tracking-[0.14em] text-primary uppercase">Beranda</p>
           <h1 className="text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">Pembukuan perusahaan, lebih tertata.</h1>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">Pantau tagihan, pinjaman, dan laporan keuangan dalam satu ruang kerja.</p>
+          {/* <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">Pantau tagihan, pinjaman, dan laporan keuangan dalam satu ruang kerja.</p> */}
+          <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">Pantau pembukuan dan laporan keuangan dalam satu ruang kerja.</p>
         </div>
         <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-1.5 text-sm font-medium text-primary"><BookOpenCheck className="size-3.5" aria-hidden="true" />Pembukuan internal</span>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className={overview.length === 1 ? "grid gap-4" : "grid gap-4 sm:grid-cols-2 xl:grid-cols-4"}>
         {overview.map(({ title, description, icon: Icon, href }) => (
           <Card key={title} className="overflow-hidden shadow-none">
             <Link href={href} className="block rounded-2xl p-5 outline-none transition-colors hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring">
@@ -53,6 +59,7 @@ export default async function HomePage() {
         </EmptyState>
       </Card>
 
+      {/* Akses cepat sementara disembunyikan. Hapus pembungkus komentar ini untuk menampilkannya kembali.
       <section aria-labelledby="shortcuts-heading">
         <h2 id="shortcuts-heading" className="text-base font-semibold">Akses cepat</h2>
         <p className="mt-1 text-sm text-muted-foreground">Pilih bagian pembukuan yang ingin Anda lihat.</p>
@@ -66,6 +73,7 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+      */}
     </div>
   );
 }
