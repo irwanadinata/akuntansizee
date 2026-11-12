@@ -1,7 +1,8 @@
 import { Prisma, type PrismaClient } from "../../generated/prisma/client";
 import { asDate } from "../accounting/dates";
 import { boundedCommand, newJournalNumber, payloadHash, isNumberCollision } from "./identity";
-import { assertBalanced, createJournalSchema, editJournalSchema, journalNumberSchema, journalOperations, yearCreateSchema, yearStatusSchema, JournalError, type JournalLineInput } from "./validation";
+import { assertBalanced, createJournalSchema, editJournalSchema, deleteJournalSchema, journalNumberSchema, journalOperations, yearCreateSchema, yearStatusSchema, JournalError, type JournalLineInput } from "./validation";
+import { journalDeletionBlock } from "./deletion";
 import { z } from "zod";
 import { assertOpeningAccount } from "../opening/validation";
 import { dateString } from "../accounting/dates";
@@ -132,6 +133,24 @@ export async function executeJournalCommand(db: PrismaClient, actorId: string, r
       const entry = await lockedEntry(tx, input.id, input.version);
       if (entry.sourceType !== "MANUAL") throw new JournalError("Ubah jurnal otomatis bersama transaksi asalnya melalui formulir pengeditan transaksi.");
       return updatePostedJournal(tx, actorId, entry, input, dependencies);
+    });
+  }
+  if (operation === "DELETE") {
+    const input = deleteJournalSchema.parse(raw);
+    return command(db, actorId, operation, input.requestKey, input, async tx => {
+      const entry = await lockedEntry(tx, input.id, input.version);
+      const openingJournal = await tx.openingJournal.findUnique({ where: { journalEntryId: entry.id }, select: { id: true } });
+      const blocked = journalDeletionBlock({ ...entry, openingJournal });
+      if (blocked) throw new JournalError(blocked);
+      await openYear(tx, entry.date, true);
+      const [transaction] = await tx.$queryRaw<{ id: string }[]>`SELECT txid_current()::text AS id`;
+      await audit(tx, actorId, entry.id, "DELETED", {
+        transactionId: transaction.id, reason: input.reason, before: journalSnapshot(entry),
+        status: entry.status, postingStatus: entry.postingStatus, fiscalYearId: entry.fiscalYearId,
+      });
+      // Lines cascade; number reservations, account usage and audits remain intact.
+      await tx.journalEntry.delete({ where: { id: entry.id, version: entry.version } });
+      return { ...result(entry), status: "DELETED" };
     });
   }
   if (operation === "CREATE_YEAR") {

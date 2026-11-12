@@ -19,7 +19,7 @@ export async function journalAction(operation: unknown, payload: unknown): Promi
     revalidatePath("/", "layout");
     for (const path of ["/jurnal", "/buku-besar", "/tahun-buku", "/coa"]) revalidatePath(path);
     revalidatePath("/jurnal/[id]", "page");
-    return { ok: true, message: result.journalNumber ? "Berhasil disimpan — Nomor Jurnal " + result.journalNumber : "Tindakan berhasil disimpan.", result };
+    return { ok: true, message: result.status === "DELETED" ? "Jurnal " + result.journalNumber + " berhasil dihapus." : result.journalNumber ? "Berhasil disimpan — Nomor Jurnal " + result.journalNumber : "Tindakan berhasil disimpan.", result };
   } catch (error) {
     if (error instanceof JournalError) return { ok: false, message: error.message };
     if (error instanceof z.ZodError) return { ok: false, message: error.issues[0]?.message ?? "Input tidak sah." };

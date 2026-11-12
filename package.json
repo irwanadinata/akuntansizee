@@ -20,7 +20,7 @@
     "coa:check": "node --conditions=react-server --import tsx prisma/seed.ts --check",
     "coa:audit": "node --import tsx scripts/verify-coa-approved.ts",
     "test:coa:neon": "node --conditions=react-server --import tsx --test tests/integration/coa-neon.test.ts",
-    "test:journal:neon": "node --conditions=react-server --import tsx --test tests/integration/journal-neon.test.ts tests/integration/journal-source-edit-neon.test.ts",
+    "test:journal:neon": "node --conditions=react-server --import tsx --test tests/integration/journal-neon.test.ts tests/integration/journal-source-edit-neon.test.ts tests/integration/journal-deletion-neon.test.ts",
     "test:loans:neon": "node --conditions=react-server --import tsx --test tests/integration/loans-neon.test.ts",
     "test:trade:neon": "node --conditions=react-server --import tsx --test tests/integration/trade-neon.test.ts",
     "test:reports:neon": "node --conditions=react-server --import tsx --test tests/integration/reports-neon.test.ts",

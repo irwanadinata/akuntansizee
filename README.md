@@ -12,7 +12,7 @@ Pembukuan baru dimulai dengan **saldo Rp0 tanpa jurnal**. Seed hanya menyiapkan 
 | Piutang Customer | Tagihan, pembayaran sebagian/penuh, sisa tagihan dan riwayat pembayaran. |
 | Utang Supplier | Tagihan dengan kategori Beban/HPP/Aset, pembayaran dan sisa utang. |
 | Pinjaman Karyawan | Pinjaman, cicilan, sisa otomatis dan status pelunasan. |
-| Jurnal | Nomor jurnal manual, langsung posting, serta pengeditan jurnal dan transaksi asal dengan audit sebelum/sesudah. |
+| Jurnal | Nomor jurnal manual, langsung posting, pengeditan dengan audit sebelum/sesudah, serta hapus jurnal manual dengan konfirmasi dan alasan. |
 | Buku Besar | Filter akun/tahun/tanggal, saldo sebelum periode dan saldo berjalan. |
 | Neraca | Posisi keuangan per tanggal, saldo lintas tahun dan laba berjalan. |
 | Laba Rugi | Pendapatan, HPP, laba kotor, beban, hasil lainnya dan laba bersih. |
@@ -26,6 +26,8 @@ Nama karyawan, customer dan supplier disimpan langsung pada transaksi. Tidak dip
 UI berbahasa Indonesia menggunakan format Rupiah bulat, tanggal bisnis **Asia/Jakarta**, sidebar responsif dan filter tahun yang dipertahankan antar-menu. Tambah tagihan, pinjaman dan akun COA dari daftar membuka **panel dari kanan**, dengan halaman daftar tetap terlihat. Filter, navigasi, penyimpanan, login/logout, pergantian tahun dan PDF memiliki indikator loading. Form transaksi harian memakai langkah isi → periksa → simpan; debit/kredit manual tersedia pada menu Jurnal lanjutan.
 
 Pilihan akun pada jurnal, saldo pembukaan, pinjaman/cicilan, tagihan customer/supplier dan pembayaran dapat dicari: buka pilihan akun, ketik kode atau nama, lalu klik hasilnya atau gunakan tombol panah dan Enter. Escape menutup pencarian tanpa mengubah akun yang sudah dipilih. Daftar tetap mengikuti akun yang diperbolehkan untuk transaksi tersebut.
+
+Hapus jurnal tersedia pada daftar dan rincian jurnal manual di tahun buku terbuka. Konfirmasi dan alasan wajib diisi. Penghapusan menghapus seluruh baris jurnal dan memperbarui saldo/laporan dalam satu transaksi; nomor jurnal, marker pemakaian akun dan audit tetap disimpan. Tautan rincian lama menampilkan salinan audit jurnal yang sudah dihapus. Jurnal otomatis, saldo pembukaan dan jurnal dengan riwayat pembalik tetap dilindungi. Deployment fitur ini memerlukan migrasi `20261112000000_audited_journal_deletion` melalui `npm run db:migrate:deploy` pada target yang benar.
 
 Panduan penggunaan: [Panduan Admin](docs/09-panduan-admin.md). Buku panduan PDF 44 halaman dapat diunduh setelah login melalui tombol **Download Panduan** pada navbar. File yang disertakan dalam deployment berada di `assets/guides/buku-panduan.pdf` dan dilayani melalui `/panduan`.
 

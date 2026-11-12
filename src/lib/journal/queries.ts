@@ -12,7 +12,7 @@ export async function journalList(db: PrismaClient, filters: z.infer<typeof jour
   return db.$transaction(async tx => {
     const total = await tx.journalEntry.count({ where });
     const pages = Math.max(1, Math.ceil(total / 30)), page = Math.min(filters.page, pages);
-    const entries = await tx.journalEntry.findMany({ where, orderBy: [{ date: "desc" }, { createdAt: "desc" }, { id: "desc" }], take: 30, skip: (page - 1) * 30, include: { lines: { select: { debit: true } } } });
+    const entries = await tx.journalEntry.findMany({ where, orderBy: [{ date: "desc" }, { createdAt: "desc" }, { id: "desc" }], take: 30, skip: (page - 1) * 30, include: { lines: { select: { debit: true } }, openingJournal: { select: { id: true } }, fiscalYear: { select: { status: true } } } });
     return { entries, total, pages, page };
   }, { isolationLevel: "RepeatableRead" });
 }

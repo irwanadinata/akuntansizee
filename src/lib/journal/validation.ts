@@ -2,7 +2,7 @@ import { z } from "zod";
 import { rupiah } from "../accounting/money";
 import { validBusinessDate } from "../accounting/dates";
 export class JournalError extends Error {}
-export const journalOperations = ["CREATE", "UPDATE", "CREATE_YEAR", "SET_YEAR_STATUS"] as const;
+export const journalOperations = ["CREATE", "UPDATE", "DELETE", "CREATE_YEAR", "SET_YEAR_STATUS"] as const;
 export const businessDate = z.string().refine(validBusinessDate, "Tanggal transaksi tidak sah.");
 const amount = z.string().max(40).transform((value, ctx) => {
   try { return rupiah(value); } catch (error) { ctx.addIssue({ code: "custom", message: error instanceof Error ? error.message : "Nominal tidak sah." }); return z.NEVER; }
@@ -25,6 +25,7 @@ export const createJournalSchema = z.object({ ...journalFields, requestKey: z.uu
 });
 export const editJournalSchema = createJournalSchema.safeExtend({ id: z.uuid(), version: z.number().int().positive(), reason: z.string().trim().min(3, "Tuliskan alasan perubahan, minimal 3 karakter.").max(1000) }).strict();
 export const targetSchema = z.object({ id: z.uuid(), version: z.number().int().positive(), requestKey: z.uuid() }).strict();
+export const deleteJournalSchema = targetSchema.extend({ reason: z.string().trim().min(3, "Tuliskan alasan penghapusan, minimal 3 karakter.").max(1000) }).strict();
 export const yearCreateSchema = z.object({ year: z.number().int().min(1900).max(2199), requestKey: z.uuid() }).strict();
 export const yearStatusSchema = targetSchema.extend({ status: z.enum(["OPEN", "LOCKED"]), reason: z.string().trim().min(3).max(1000) }).strict();
 export type JournalInput = z.output<typeof createJournalSchema>;
