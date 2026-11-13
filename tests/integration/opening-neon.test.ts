@@ -51,10 +51,10 @@ test("Neon: saldo pembukaan opsional, terverifikasi, atomik dan sekali per perus
       assert.deepEqual(await counts(),before);
     });
     await t.test("akun belum disetujui dan ketiga kontrol ditolak tanpa merusak rekonsiliasi",async()=>{
-      const pending=await db.account.create({data:{code:"9900.1",name:"Akun uji belum disahkan",mainType:"ASSET",reportGroup:"CURRENT_ASSET",normalBalance:"DEBIT"}});
+      const pending=await db.account.create({data:{code:"9900.1",name:"Akun uji belum disahkan",mainType:"ASSET",reportGroup:"CURRENT_ASSET",normalBalance:"DEBIT",requiresReview:true,isActive:false}});
       const value={...raw,lines:raw.lines.map((line,index)=>index===0?{...line,accountId:pending.id}:line)},before=await counts();
-      await assert.rejects(previewOpening(db,value),/disetujui/);await assert.rejects(failPost(postRaw({lines:value.lines})),/disetujui/);
-      // Bypass service validation: the deferred DB guard must still roll back
+      await assert.rejects(previewOpening(db,value),/nonaktif|disetujui/);await assert.rejects(failPost(postRaw({lines:value.lines})),/nonaktif|disetujui/);
+      // Bypass service validation: the DB guards must still roll back
       // the journal, lines, number reservation, usage markers and both audits.
       await assert.rejects(db.$transaction(async tx=>{
         const entry=await tx.journalEntry.create({data:{journalNumber:await reserve(tx,()=>new Date(),newJournalNumber),date:new Date("2037-01-01T00:00:00Z"),description:"Uji guard akun pembukaan belum disetujui",fiscalYearId:fiscal.id,createdById:admin.id}});
@@ -62,7 +62,7 @@ test("Neon: saldo pembukaan opsional, terverifikasi, atomik dan sekali per perus
         const marker=await tx.openingJournal.create({data:{journalEntryId:entry.id,cutoverDate:entry.date,fiscalYearId:fiscal.id,verificationNote:raw.verificationNote,previewHash:"0".repeat(64),createdById:admin.id,confirmedAt:new Date()}});
         await tx.journalEntry.update({where:{id:entry.id},data:{status:"POSTED",postingStatus:"POSTED",postedAt:new Date(),postedById:admin.id,version:{increment:1}}});
         await audit(tx,admin.id,entry.id,"POSTED",{journalNumber:entry.journalNumber});await audit(tx,admin.id,marker.id,"OPENING_POSTED",{confirmed:true},"OPENING");
-      }),/disetujui/);
+      }),/nonaktif|aktif|disetujui/);
       for(const account of all.filter(a=>a.isControlAccount))await assert.rejects(previewOpening(db,{...raw,lines:raw.lines.map((line,index)=>index===0?{...line,accountId:account.id}:line)}),/kontrol/);
       assert.deepEqual(await counts(),before);
       const approved=await db.$transaction(tx=>editAccountInTransaction(tx,admin.id,pending.id,pending.version,{code:pending.code,name:pending.name,description:"",mainType:"ASSET",reportGroup:"CURRENT_ASSET",normalBalance:"DEBIT",isContra:false,isControlAccount:false,isActive:true,requiresReview:false,reviewConfirmed:true,reviewReason:""}));assert.ok(approved.reviewedAt);assert.equal((await previewOpening(db,value)).totalDebit,"3000000");

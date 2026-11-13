@@ -220,6 +220,8 @@ model JournalEntry {
 // Optional, one historical cutover per company. Append-only even after reversal.
 // All monetary values remain exclusively on the linked posted journal lines.
 model OpeningJournal {
+  // Legacy openings remain balanced; only new per-account openings omit a counterpart.
+  perAccount       Boolean      @default(false)
   id               String       @id @default(uuid()) @db.Uuid
   singletonKey     Int          @unique @default(1)
   journalEntryId   String       @unique @db.Uuid

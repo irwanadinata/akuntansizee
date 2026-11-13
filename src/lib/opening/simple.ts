@@ -29,7 +29,7 @@ export const simpleOpeningFields = z.object({
   verificationNote: z.string().trim().max(1000).refine(value => !value || value.length >= 10, "Catatan minimal 10 karakter, atau kosongkan.").default(""),
 }).strict();
 
-type VerifiedAccount = OpeningAccount & { isActive: boolean; reviewedAt: Date | null };
+type VerifiedAccount = OpeningAccount & { isActive: boolean; requiresReview: boolean; reviewedAt: Date | null };
 
 export function simpleOpeningInput(raw: unknown, rows: VerifiedAccount[]) {
   const input = simpleOpeningFields.parse(raw);

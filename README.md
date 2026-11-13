@@ -19,7 +19,7 @@ Pembukuan baru dimulai dengan **saldo Rp0 tanpa jurnal**. Seed hanya menyiapkan 
 | Laporan Keuangan | Neraca dan Laba Rugi gabungan, pemeriksaan saldo kontrol, cetak dan PDF. |
 | Daftar Akun (COA) | Cari/filter, tambah, edit, nonaktifkan dan hapus akun yang belum pernah dipakai. |
 | Tahun Buku | Tambah tahun, pilih tahun aktif dan kunci/buka periode dengan alasan. |
-| Saldo Pembukaan | Preview dan posting pembukaan seimbang, sekali per perusahaan. |
+| Saldo Pembukaan | Input nominal per COA tanpa akun lawan, dengan preview dan konfirmasi, sekali per perusahaan. |
 
 Nama karyawan, customer dan supplier disimpan langsung pada transaksi. Tidak diperlukan master pihak atau akun COA per orang. Nomor faktur customer/referensi supplier eksternal bersifat opsional dan terpisah dari nomor internal.
 
@@ -117,7 +117,9 @@ Buka [http://localhost:3000](http://localhost:3000), masuk menggunakan admin yan
 - Tahun terkunci menolak posting/backdate. Mengunci tahun **tidak membuat jurnal penutup otomatis**.
 - Tidak ada saldo akun yang dapat diedit, akun penyeimbang otomatis atau impor angka dari laporan contoh 2025. Jika laporan/kontrol berselisih, tampilkan dan telusuri selisihnya.
 
-**Saldo Pembukaan opsional:** mode Sederhana cukup satu nominal saldo kas/bank awal dari modal pemilik; server membuat debit Kas/Bank dan kredit Modal dengan nominal sama. Tanggal awal default 1 Januari pada Tahun Buku yang dipilih; tanggal, kas/bank, pemilik modal dan catatan opsional tersedia di Pengaturan tanggal & akun. Jika ada beberapa akun modal, admin memilih pemilik yang benar; sistem tidak memilih pemilik secara sembarang. Preview dan konfirmasi wajib sebelum simpan, nomor jurnal otomatis. Mode Rincian per akun tetap tersedia untuk saldo historis terverifikasi yang lebih lengkap, dengan rujukan verifikasi dan jurnal seimbang. Tahun harus terbuka, akun aktif serta klasifikasi sudah disahkan. Marker perusahaan dan idempotency mencegah posting kedua, termasuk setelah jurnal pembukaan dibalik. Buku baru dapat langsung bertransaksi tanpa proses ini.
+**Saldo Pembukaan opsional:** pilih COA dan isi saldo awalnya, lalu gunakan **Tambah COA** untuk akun berikutnya. Contoh BRI Rp10 juta dan BCA Rp20 juta menghasilkan tepat dua saldo tersebut, tanpa modal atau akun lawan otomatis. Satu sampai 100 COA dapat diisi; satu COA hanya satu kali, nominal positif Rupiah bulat, posisi mengikuti saldo normal COA (termasuk akun kredit dan kontra). Tanggal default 1 Januari pada Tahun Buku yang dipilih. Catatan dan nomor jurnal opsional; preview dan konfirmasi wajib sebelum simpan. Tahun harus terbuka, akun aktif dengan klasifikasi sah. Persetujuan review hanya wajib untuk akun yang ditandai perlu review; COA biasa yang aktif tetap dapat dipilih walau belum memiliki tanggal persetujuan. Akun kontrol tetap memakai rincian subledger. Saldo masuk ke Buku Besar dan laporan. Selisih pembukaan/neraca tetap ditampilkan dan laporan belum dapat dinyatakan final bila aset, utang dan modal belum lengkap; tidak ada penyeimbang otomatis. Koreksi dan penambahan COA dilakukan dari rincian pembukaan → **Ubah jurnal**, dengan tanggal pembukaan tetap dan alasan perubahan wajib. Marker perusahaan dan idempotency mencegah pembukaan kedua. Pembukaan lama tetap memakai aturan seimbang dan nominal aslinya. Buku baru dapat langsung bertransaksi dari Rp0 tanpa proses ini.
+
+Deployment perubahan saldo per COA memerlukan migrasi `20261113000000_per_account_opening` dan `20261113010000_opening_account_eligibility` melalui `npm run db:migrate:deploy` pada target yang benar sebelum aplikasi baru dijalankan. Migrasi menambahkan penanda khusus pembukaan per COA dan mengizinkan satu sisi hanya pada pembukaan tersebut; jurnal transaksi biasa tetap minimal dua baris dan wajib seimbang. Migrasi tidak mengubah nominal, akun, atau jurnal pembukaan yang sudah ada.
 
 ### Nomor transaksi
 

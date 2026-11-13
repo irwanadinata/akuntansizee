@@ -24,7 +24,7 @@
     "test:loans:neon": "node --conditions=react-server --import tsx --test tests/integration/loans-neon.test.ts",
     "test:trade:neon": "node --conditions=react-server --import tsx --test tests/integration/trade-neon.test.ts",
     "test:reports:neon": "node --conditions=react-server --import tsx --test tests/integration/reports-neon.test.ts",
-    "test:opening:neon": "node --conditions=react-server --import tsx --test tests/integration/opening-neon.test.ts",
+    "test:opening:neon": "node --conditions=react-server --import tsx --test tests/integration/opening-neon.test.ts tests/integration/opening-per-account-neon.test.ts",
     "db:migrate:dev": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "admin:create": "node --conditions=react-server --import tsx scripts/create-admin.ts",

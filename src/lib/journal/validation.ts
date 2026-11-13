@@ -24,6 +24,12 @@ export const createJournalSchema = z.object({ ...journalFields, requestKey: z.uu
   try { assertBalanced(value.lines); } catch (error) { ctx.addIssue({ code: "custom", path: ["lines"], message: (error as Error).message }); }
 });
 export const editJournalSchema = createJournalSchema.safeExtend({ id: z.uuid(), version: z.number().int().positive(), reason: z.string().trim().min(3, "Tuliskan alasan perubahan, minimal 3 karakter.").max(1000) }).strict();
+// Only the service's stored per-account opening marker can authorize this shape.
+export const editOpeningJournalSchema = z.object({ ...journalFields,
+  lines: z.array(journalLineSchema).min(1, "Isi minimal satu COA.").max(100),
+  id: z.uuid(), version: z.number().int().positive(), requestKey: z.uuid(),
+  reason: z.string().trim().min(3, "Tuliskan alasan perubahan, minimal 3 karakter.").max(1000),
+}).strict();
 export const targetSchema = z.object({ id: z.uuid(), version: z.number().int().positive(), requestKey: z.uuid() }).strict();
 export const deleteJournalSchema = targetSchema.extend({ reason: z.string().trim().min(3, "Tuliskan alasan penghapusan, minimal 3 karakter.").max(1000) }).strict();
 export const yearCreateSchema = z.object({ year: z.number().int().min(1900).max(2199), requestKey: z.uuid() }).strict();

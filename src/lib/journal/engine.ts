@@ -1,7 +1,7 @@
 import { Prisma, type PrismaClient } from "../../generated/prisma/client";
 import { asDate } from "../accounting/dates";
 import { boundedCommand, newJournalNumber, payloadHash, isNumberCollision } from "./identity";
-import { assertBalanced, createJournalSchema, editJournalSchema, deleteJournalSchema, journalNumberSchema, journalOperations, yearCreateSchema, yearStatusSchema, JournalError, type JournalLineInput } from "./validation";
+import { assertBalanced, createJournalSchema, editJournalSchema, editOpeningJournalSchema, deleteJournalSchema, journalNumberSchema, journalOperations, yearCreateSchema, yearStatusSchema, JournalError, type JournalLineInput } from "./validation";
 import { journalDeletionBlock } from "./deletion";
 import { z } from "zod";
 import { assertOpeningAccount } from "../opening/validation";
@@ -91,12 +91,18 @@ export async function updatePostedJournal(tx: Tx, actorId: string,
   if (entry.status === "REVERSED" || entry.sourceType === "REVERSAL") throw new JournalError("Riwayat jurnal yang sudah dibatalkan tidak dapat diedit.");
   await openYear(tx, entry.date, entry.postingStatus !== "POSTED");
   const date = asDate(input.date), year = await openYear(tx, date);
-  assertBalanced(input.lines); await accounts(tx, input.lines, allowedControlId);
   const opening = await tx.openingJournal.findUnique({ where: {journalEntryId: entry.id} });
+  if (!opening?.perAccount) assertBalanced(input.lines);
+  await accounts(tx, input.lines, allowedControlId);
   if (opening) {
     if (date.getTime() !== opening.cutoverDate.getTime()) throw new JournalError("Tanggal cutover saldo pembukaan tetap. Ubah nominal atau akun pada tanggal pembukaan yang sama.");
     if (new Set(input.lines.map(line => line.accountId)).size !== input.lines.length) throw new JournalError("Saldo pembukaan per akun harus neto, tanpa akun berulang.");
-    (await tx.account.findMany({where:{id:{in:input.lines.map(line=>line.accountId)}}})).forEach(assertOpeningAccount);
+    const rows = await tx.account.findMany({where:{id:{in:input.lines.map(line=>line.accountId)}}});
+    rows.forEach(assertOpeningAccount);
+    if (opening.perAccount && input.lines.some(line => {
+      const account = rows.find(row => row.id === line.accountId)!;
+      return account.normalBalance === "DEBIT" ? line.credit !== "0" : line.debit !== "0";
+    })) throw new JournalError("Saldo pembukaan per COA harus mengikuti saldo normal akun.");
   }
   const journalNumber = input.journalNumber === entry.journalNumber ? entry.journalNumber : await reserve(tx, dependencies.now ?? (()=>new Date()), dependencies.number ?? newJournalNumber, input.journalNumber);
   const before = journalSnapshot(entry), after = { journalNumber, date: input.date, description: input.description, version: entry.version + 1, lines: input.lines };
@@ -128,10 +134,12 @@ export async function executeJournalCommand(db: PrismaClient, actorId: string, r
     });
   }
   if (operation === "UPDATE") {
-    const input = editJournalSchema.parse(raw);
+    const input = editOpeningJournalSchema.parse(raw);
     return command(db, actorId, operation, input.requestKey, input, async tx => {
       const entry = await lockedEntry(tx, input.id, input.version);
       if (entry.sourceType !== "MANUAL") throw new JournalError("Ubah jurnal otomatis bersama transaksi asalnya melalui formulir pengeditan transaksi.");
+      const opening = await tx.openingJournal.findUnique({where:{journalEntryId:entry.id}});
+      if (!opening?.perAccount) editJournalSchema.parse(input);
       return updatePostedJournal(tx, actorId, entry, input, dependencies);
     });
   }

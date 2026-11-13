@@ -10,6 +10,7 @@ import { dateString,jakartaDate } from "@/lib/accounting/dates";
 import { JournalForm } from "@/components/journal/journal-form";
 import { SourceEditForm } from "@/components/journal/source-edit-form";
 import type { SourceEditInput } from "@/lib/journal/source-validation";
+import { openingChoices } from "@/lib/opening/queries";
 export const metadata={title:"Ubah jurnal"};
 export default async function EditJournalPage({params}:{params:Promise<{id:string}>}){
  await requireAdmin();const {id}=await params;if(!z.uuid().safeParse(id).success)notFound();
@@ -19,8 +20,11 @@ export default async function EditJournalPage({params}:{params:Promise<{id:strin
  if(entry.status==="REVERSED"||entry.sourceType==="REVERSAL")return <div className="space-y-4"><h1 className="text-2xl font-semibold">Riwayat jurnal</h1><p>Jurnal yang sudah dibatalkan pada versi sebelumnya tetap tersimpan dan tidak dapat diedit.</p><Link href={"/jurnal/"+id} className="text-primary underline">Kembali ke rincian</Link></div>;
  const header=<header className="space-y-2"><Link href={"/jurnal/"+id} className="text-sm text-primary underline">Kembali ke rincian jurnal</Link><h1 className="text-2xl font-semibold">Ubah jurnal</h1><p className="break-all font-mono text-sm">{entry.journalNumber}</p></header>;
  if(entry.sourceType==="MANUAL"){
-  const choices=await journalChoices(db);for(const line of entry.lines)if(!choices.some(account=>account.id===line.accountId))choices.push({id:line.account.id,code:line.account.code,name:line.account.name+" (pilih akun aktif untuk menyimpan)"});
-  return <div className="space-y-6">{header}{entry.status==="DRAFT"&&<p className="rounded-lg border p-4 text-sm">Catatan lama ini belum masuk pembukuan. Periksa dan simpan untuk langsung mempostingnya.</p>}<JournalForm accounts={choices} today={jakartaDate()} fixedDate={Boolean(entry.openingJournal)} initial={{id,version:entry.version,journalNumber:entry.journalNumber,date:dateString(entry.date),description:entry.description,lines:entry.lines.map(line=>({accountId:line.accountId,debit:line.debit.toFixed(0),credit:line.credit.toFixed(0),description:line.description??""}))}}/></div>;
+  const choices:{id:string;code:string;name:string;normalBalance?:"DEBIT"|"CREDIT"}[]=entry.openingJournal?.perAccount
+   ? await openingChoices(db)
+   : await journalChoices(db);
+  for(const line of entry.lines)if(!choices.some(account=>account.id===line.accountId))choices.push({id:line.account.id,code:line.account.code,name:line.account.name+" (pilih akun aktif untuk menyimpan)",normalBalance:line.account.normalBalance});
+  return <div className="space-y-6">{header}{entry.status==="DRAFT"&&<p className="rounded-lg border p-4 text-sm">Catatan lama ini belum masuk pembukuan. Periksa dan simpan untuk langsung mempostingnya.</p>}<JournalForm accounts={choices} today={jakartaDate()} fixedDate={Boolean(entry.openingJournal)} perAccountOpening={entry.openingJournal?.perAccount} initial={{id,version:entry.version,journalNumber:entry.journalNumber,date:dateString(entry.date),description:entry.description,lines:entry.lines.map(line=>({accountId:line.accountId,debit:line.debit.toFixed(0),credit:line.credit.toFixed(0),description:line.description??""}))}}/></div>;
  }
  const common={id,version:entry.version,journalNumber:entry.journalNumber,reason:"",requestKey:randomUUID(),date:dateString(entry.date)};
  let initial:SourceEditInput,relatedLabel:string,relatedHref:string,choices:{id:string;code:string;name:string}[];
