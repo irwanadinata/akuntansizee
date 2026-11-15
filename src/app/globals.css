@@ -70,6 +70,30 @@
   }
 }
 
+.journal-delete-dialog[open] {
+  animation: journal-delete-enter 160ms ease-out;
+}
+
+.journal-delete-dialog::backdrop {
+  background: rgb(15 23 42 / 48%);
+  backdrop-filter: blur(4px);
+  animation: journal-delete-backdrop 160ms ease-out;
+}
+
+@keyframes journal-delete-enter {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes journal-delete-backdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journal-delete-dialog[open], .journal-delete-dialog::backdrop { animation: none; }
+}
+
 .sidebar {
   container: sidebar / size;
 }
