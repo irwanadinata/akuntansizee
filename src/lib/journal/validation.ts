@@ -31,7 +31,7 @@ export const editOpeningJournalSchema = z.object({ ...journalFields,
   reason: z.string().trim().min(3, "Tuliskan alasan perubahan, minimal 3 karakter.").max(1000),
 }).strict();
 export const targetSchema = z.object({ id: z.uuid(), version: z.number().int().positive(), requestKey: z.uuid() }).strict();
-export const deleteJournalSchema = targetSchema.extend({ reason: z.string().trim().min(3, "Tuliskan alasan penghapusan, minimal 3 karakter.").max(1000) }).strict();
+export const deleteJournalSchema = targetSchema.extend({ reason: z.string().trim().min(3).max(1000).default("Jurnal dihapus setelah konfirmasi admin.") }).strict();
 export const yearCreateSchema = z.object({ year: z.number().int().min(1900).max(2199), requestKey: z.uuid() }).strict();
 export const yearStatusSchema = targetSchema.extend({ status: z.enum(["OPEN", "LOCKED"]), reason: z.string().trim().min(3).max(1000) }).strict();
 export type JournalInput = z.output<typeof createJournalSchema>;

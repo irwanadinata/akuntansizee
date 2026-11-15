@@ -8,8 +8,9 @@ import { executeJournalCommand } from "../src/lib/journal/engine";
 
 const payload = { id: randomUUID(), version: 2, requestKey: randomUUID(), reason: "  Salah pencatatan  " };
 
-test("hapus jurnal memerlukan identitas, versi, kunci permintaan dan alasan", () => {
+test("hapus jurnal memerlukan identitas, versi dan kunci permintaan; catatan audit dibuat otomatis", () => {
   assert.equal(deleteJournalSchema.parse(payload).reason, "Salah pencatatan");
+  assert.equal(deleteJournalSchema.parse({id:payload.id,version:payload.version,requestKey:payload.requestKey}).reason,"Jurnal dihapus setelah konfirmasi admin.");
   for (const extra of [{ id: "bad" }, { version: 0 }, { version: 1.5 }, { requestKey: "bad" }, { reason: "  " }, { reason: "ab" }, { reason: "x".repeat(1001) }, { lines: [] }, { sourceType: "MANUAL" }]) {
     assert.equal(deleteJournalSchema.safeParse({ ...payload, ...extra }).success, false);
   }

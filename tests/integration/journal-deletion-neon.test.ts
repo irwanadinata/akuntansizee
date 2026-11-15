@@ -30,7 +30,7 @@ test("PostgreSQL: hapus jurnal dengan audit, saldo exact dan perlindungan relasi
     const lines = (amount = "1000") => [{ accountId: cash.id, debit: amount, credit: "0", description: "Kas sintetis" }, { accountId: income.id, debit: "0", credit: amount, description: "Pendapatan sintetis" }];
     const create = (amount = "1000") => run("CREATE", { journalNumber: "DEL/" + randomUUID(), date: "2037-02-01", description: "Jurnal uji penghapusan", lines: lines(amount) });
     const stored = (id: string) => db.journalEntry.findUniqueOrThrow({ where: { id }, include: { lines: { orderBy: { lineNo: "asc" } } } });
-    const remove = (entry: { id: string; version: number }, extra = {}) => run("DELETE", { id: entry.id, version: entry.version, reason: "Salah pencatatan sintetis", ...extra });
+    const remove = (entry: { id: string; version: number }, extra = {}) => run("DELETE", { id: entry.id, version: entry.version, ...extra });
     const state = async () => JSON.stringify({ entries: await db.journalEntry.findMany({ orderBy: { id: "asc" }, include: { lines: { orderBy: { lineNo: "asc" } } } }), audits: await db.auditEvent.count(), requests: await db.journalRequest.count(), usage: await db.accountUsage.count(), numbers: await db.journalNumber.count() });
     const deletionDetails = async (tx: Prisma.TransactionClient, row: Awaited<ReturnType<typeof stored>>) => {
       const [transaction] = await tx.$queryRaw<{ id: string }[]>`SELECT txid_current()::text AS id`;
@@ -53,6 +53,7 @@ test("PostgreSQL: hapus jurnal dengan audit, saldo exact dan perlindungan relasi
       assert.equal((await journalList(db, { q: "", status: "", year: "2037", page: 1 })).total, 0);
       const events = await db.auditEvent.findMany({ where: { entityId: entry.id, action: "DELETED" } });
       assert.equal(events.length, 1); assert.deepEqual((events[0].details as { before: unknown }).before, journalSnapshot(before));
+      assert.equal((events[0].details as {reason:string}).reason,"Jurnal dihapus setelah konfirmasi admin.");
       assert.equal(await db.journalRequest.count({ where: { operation: "DELETE", requestKey: entry.id } }), 1);
       assert.equal(await db.accountUsage.count({ where: { sourceId: entry.id } }), 2);
       assert.equal(await db.journalNumber.count({ where: { journalNumber: entry.journalNumber! } }), 1);
