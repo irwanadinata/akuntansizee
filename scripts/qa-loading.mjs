@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
+import { selectAccount } from "./qa-select-account.mjs";
 
 export async function holdRequest(page, matches) {
   let release, started;
@@ -20,7 +21,7 @@ export async function checkLoading({page,db,origin,screenshots,directory,pass}){
   const routes=["/pinjaman-karyawan","/piutang-customer","/utang-supplier","/jurnal","/coa","/buku-besar","/neraca","/laba-rugi","/laporan-keuangan"];
   for(const [index,path]of routes.entries()){
     await page.goto(origin+path+"?year=2037");await page.waitForLoadState("networkidle");const form=page.locator("[data-filter-bar]");
-    if(path==="/buku-besar"){await form.locator('button[type=submit]').click();assert.equal(await form.locator("[data-filter-pending]").count(),0);await form.locator("#accountId").selectOption({index:1});}
+    if(path==="/buku-besar"){await form.locator('button[type=submit]').click();assert.equal(await form.locator("[data-filter-pending]").count(),0);await selectAccount(form,"#accountId");}
     else if(await form.locator("#q").count())await form.locator("#q").fill("loading-"+index);
     else await form.locator("#hideZero").selectOption("false");
     const width=(await form.locator('button[type=submit]').boundingBox()).width;

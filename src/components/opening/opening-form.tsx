@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,6 +24,7 @@ export function OpeningForm({ accounts, year }: {
   accounts: OpeningAccount[];
   year: { id: string; year: number; status: "OPEN" | "LOCKED" };
 }) {
+  const router = useRouter();
   const [preview, setPreview] = useState<OpeningPreview | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [saved, setSaved] = useState<OpeningResult | null>(null);
@@ -69,7 +71,10 @@ export function OpeningForm({ accounts, year }: {
   if (saved) return <section className="space-y-4 rounded-xl border bg-card p-5 sm:p-6">
     <h2 role="status" className="text-xl font-semibold">Saldo pembukaan tersimpan</h2>
     <p className="text-sm">Saldo setiap COA sudah tercatat tanpa akun lawan.</p>
-    <Button asChild><Link href={"/jurnal/" + saved.id}>Lihat rincian saldo pembukaan</Link></Button>
+    <div className="flex flex-col gap-3 sm:flex-row">
+      <Button onClick={() => router.refresh()}>Tambah COA / Ubah saldo</Button>
+      <Button asChild variant="outline"><Link href={"/jurnal/" + saved.id}>Lihat rincian saldo pembukaan</Link></Button>
+    </div>
   </section>;
 
   if (preview) return <section className="space-y-5 rounded-xl border bg-card p-5">
@@ -100,7 +105,11 @@ export function OpeningForm({ accounts, year }: {
         <Input id="opening-date" type="date" min={`${year.year}-01-01`} max={`${year.year}-12-31`} {...register("cutoverDate")} />
         <p role="alert" className="text-sm text-destructive">{errors.cutoverDate?.message}</p>
       </div>
-      <p className="text-sm text-muted-foreground">Pilih COA dan isi saldo awalnya. Contoh: BRI Rp10.000.000 dan BCA Rp20.000.000. Tambahkan semua COA yang memiliki saldo pembukaan sebelum menyimpan.</p>
+      <p className="text-sm text-muted-foreground">Pilih COA dan isi saldo awalnya. Contoh: BRI Rp10.000.000 dan BCA Rp20.000.000. COA lain juga dapat ditambahkan setelah saldo pembukaan disimpan.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-semibold">Saldo pembukaan · {fields.length} COA</h2>
+        <Button type="button" variant="outline" disabled={fields.length >= 100 || pending} onClick={() => append({ accountId: "", amount: "" })}>Tambah COA</Button>
+      </div>
       <div className="space-y-3">{fields.map((field, index) => <div key={field.id} className="grid min-w-0 gap-3 rounded-lg border p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
         <div className="min-w-0 space-y-2">
           <Label htmlFor={"opening-account-" + index}>{"COA " + (index + 1)}</Label>
@@ -115,7 +124,6 @@ export function OpeningForm({ accounts, year }: {
         <Button type="button" variant="ghost" className="sm:mt-6" disabled={fields.length <= 1 || pending} onClick={() => remove(index)} aria-label={"Hapus COA " + (index + 1)}>Hapus</Button>
       </div>)}</div>
       <p role="alert" className="text-sm text-destructive">{errors.lines?.root?.message ?? errors.lines?.message}</p>
-      <Button type="button" variant="outline" disabled={fields.length >= 100 || pending} onClick={() => append({ accountId: "", amount: "" })}>Tambah COA</Button>
       <div className="space-y-2">
         <Label htmlFor="opening-note">Catatan / bukti saldo (opsional)</Label>
         <Input id="opening-note" {...register("verificationNote")} maxLength={1000} placeholder="Contoh: saldo sesuai rekening koran per 1 Januari" />
@@ -126,7 +134,7 @@ export function OpeningForm({ accounts, year }: {
         <Input id="opening-number" {...register("journalNumber")} maxLength={40} placeholder="Kosongkan untuk nomor otomatis" />
         <p role="alert" className="text-sm text-destructive">{errors.journalNumber?.message}</p>
       </div>
-      <p className="text-sm text-muted-foreground">Tanpa akun lawan otomatis. Neraca akan menunjukkan selisih jika saldo aset, utang dan modal belum lengkap. Pembukaan disimpan satu kali; koreksi dapat dilakukan melalui rincian saldo pembukaan.</p>
+      <p className="text-sm text-muted-foreground">Tanpa akun lawan otomatis. Neraca akan menunjukkan selisih jika saldo aset, utang dan modal belum lengkap. Setelah disimpan, saldo setiap COA dapat dilengkapi atau dikoreksi dari halaman ini.</p>
       {!accounts.length && <p className="text-sm text-destructive">Belum ada COA aktif yang dapat dipilih untuk saldo pembukaan. Periksa status akun dan persetujuan untuk akun yang wajib direview.</p>}
       {message && <p role="status" className="rounded-lg border p-3 text-sm">{message}</p>}
       <div className="flex flex-col gap-3 sm:flex-row">

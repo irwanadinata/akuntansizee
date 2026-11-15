@@ -18,7 +18,7 @@ export default async function EditJournalPage({params}:{params:Promise<{id:strin
   loan:true,loanPayment:{include:{loan:true}},tradeDocument:true,tradePayment:{include:{document:true}}}});
  if(!entry)notFound();
  if(entry.status==="REVERSED"||entry.sourceType==="REVERSAL")return <div className="space-y-4"><h1 className="text-2xl font-semibold">Riwayat jurnal</h1><p>Jurnal yang sudah dibatalkan pada versi sebelumnya tetap tersimpan dan tidak dapat diedit.</p><Link href={"/jurnal/"+id} className="text-primary underline">Kembali ke rincian</Link></div>;
- const header=<header className="space-y-2"><Link href={"/jurnal/"+id} className="text-sm text-primary underline">Kembali ke rincian jurnal</Link><h1 className="text-2xl font-semibold">Ubah jurnal</h1><p className="break-all font-mono text-sm">{entry.journalNumber}</p></header>;
+ const header=<header className="space-y-2"><Link href={"/jurnal/"+id} className="text-sm text-primary underline">Kembali ke rincian jurnal</Link><h1 className="text-2xl font-semibold">{entry.openingJournal?.perAccount?"Ubah saldo pembukaan":"Ubah jurnal"}</h1><p className="break-all font-mono text-sm">{entry.journalNumber}</p></header>;
  if(entry.sourceType==="MANUAL"){
   const choices:{id:string;code:string;name:string;normalBalance?:"DEBIT"|"CREDIT"}[]=entry.openingJournal?.perAccount
    ? await openingChoices(db)
