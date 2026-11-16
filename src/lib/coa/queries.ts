@@ -12,11 +12,14 @@ export const coaFilterSchema = z.object({
 });
 export type CoaFilters = z.infer<typeof coaFilterSchema>;
 export async function listAccounts(filters: CoaFilters, client?:PrismaClient) {
-  const where: Prisma.AccountWhereInput = {
-    ...(filters.q ? { OR: [{ code: { contains: filters.q, mode: "insensitive" } }, { name: { contains: filters.q, mode: "insensitive" } }, { description: { contains: filters.q, mode: "insensitive" } }] } : {}),
+  const filterWhere: Prisma.AccountWhereInput = {
     ...(filters.type ? { mainType: filters.type } : {}),
     ...(filters.status !== "all" ? { isActive: filters.status === "active" } : {}),
     ...(filters.review === "pending" ? { requiresReview: true, reviewedAt: null } : filters.review === "reviewed" ? { reviewedAt: { not: null } } : {}),
+  };
+  const where: Prisma.AccountWhereInput = {
+    ...filterWhere,
+    ...(filters.q ? { OR: [{ code: { contains: filters.q, mode: "insensitive" } }, { name: { contains: filters.q, mode: "insensitive" } }, { description: { contains: filters.q, mode: "insensitive" } }] } : {}),
   };
   try {
     const db=client??getPrisma();
@@ -26,7 +29,9 @@ export async function listAccounts(filters: CoaFilters, client?:PrismaClient) {
       const page = Math.min(filters.page, pages);
       const accounts = await tx.account.findMany({ where, orderBy: [{ code: "asc" }, { id: "asc" }],
         skip: (page - 1) * 20, take: 20, include: { _count: { select: { usageRecords: true } } } });
-      return { accounts, total, pages, page };
+      const searchOptions = await tx.account.findMany({ where: filterWhere, orderBy: [{ code: "asc" }, { id: "asc" }],
+        select: { id: true, code: true, name: true, description: true } });
+      return { accounts, total, pages, page, searchOptions };
     }, { isolationLevel: "RepeatableRead" });
   } catch { throw new Error("Daftar akun belum dapat dimuat. Periksa konfigurasi Neon dan migrasi melalui pengelola aplikasi."); }
 }
