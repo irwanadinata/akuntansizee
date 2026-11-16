@@ -52,7 +52,10 @@ for (const single of [true, false]) test(`Neon: pembukaan ${single?"satu":"beber
       const after=await ledgerReport(db,{accountId:bri.id,from:"2037-01-02",to:"2037-12-31"});assert.equal(after.opening,"10000000");
       const report=await financialReport(db,{year:2037,from:"2037-01-01",to:"2037-12-31"});assert.equal(report.balance.totalAssets,single?"10000000":"30000000");assert.equal(report.balance.postedEquity,"0");
       assert.equal(report.balance.difference,report.balance.totalAssets);assert.equal(report.diagnostics.openingDifference,report.balance.totalAssets);assert.equal(report.diagnostics.canUse,false);assert.equal(report.diagnostics.invalidJournals.length,0);
-      assert.ok(report.diagnostics.warnings.some(warning=>warning.includes("Saldo pembukaan per COA")));
+      assert.equal(report.diagnostics.warnings.length,1,"Selisih neraca yang sama dijelaskan satu kali");
+      assert.match(report.diagnostics.warnings[0],/Saldo awal belum seimbang/);
+      assert.match(report.diagnostics.warnings[0],/telah tercatat/);
+      assert.ok(!report.diagnostics.warnings[0].includes("tanpa akun lawan"));
     });
     await t.test("koreksi satu COA dan penambahan COA tetap diaudit tanpa akun lawan",async()=>{
       let entry=await db.journalEntry.findUniqueOrThrow({where:{id:saved.id}});

@@ -7,6 +7,7 @@ import { displayDate,displayTime } from "../accounting/dates";
 import { formatRupiah } from "../accounting/money";
 import type { FinancialReport } from "./engine";
 import type { ReportSection } from "./calculation";
+import { reportNotices } from "./diagnostics";
 import type { ledgerReport } from "../ledger/report";
 let fontData:Buffer|undefined,font:Font|undefined;
 function embeddedFont(){if(!fontData){fontData=readFileSync(join(process.cwd(),"assets/fonts/DejaVuSans.ttf"));const parsed=create(fontData);if(!("hasGlyphForCodePoint"in parsed))throw new ReportError("Font PDF tidak tersedia.");font=parsed;}return{data:fontData,font:font!};}
@@ -26,6 +27,22 @@ function document(title:string,metadata:string[],generatedAt:string,landscape=fa
   function ensure(height:number){if(doc.y+height>doc.page.height-54){doc.addPage();return true;}return false;}
   function paragraph(text:string,color="#52636b"){doc.font("Body").fontSize(9).fillColor(color).text(text,{width:width(),paragraphGap:5});doc.moveDown(0.5);}
   function heading(text:string){ensure(40);doc.moveDown(0.4).font("Body").fontSize(12).fillColor("#11635b").text(text);doc.moveDown(0.4);}
+  function notice(title:string,status:string,paragraphs:string[],opening:boolean){
+    if(!opening){heading(title+" - "+status);for(const text of paragraphs){ensure(40);paragraph(text,"#a72c24");}return;}
+    const inset=12,contentWidth=width()-inset*2;
+    const titleText=title+" - "+status;
+    doc.font("Body").fontSize(11);
+    const titleHeight=doc.heightOfString(titleText,{width:contentWidth});
+    doc.fontSize(9);
+    const heights=paragraphs.map(text=>doc.heightOfString(text,{width:contentWidth}));
+    const height=inset*2+titleHeight+8+heights.reduce((sum,value)=>sum+value+6,0);
+    ensure(height+12);const top=doc.y;
+    doc.roundedRect(42,top,width(),height,6).fillAndStroke("#fffbeb","#f2c663");
+    doc.fillColor("#78350f").fontSize(11).text(titleText,42+inset,top+inset,{width:contentWidth});
+    doc.y+=8;
+    for(const text of paragraphs){doc.fontSize(9).text(text,42+inset,doc.y,{width:contentWidth});doc.y+=6;}
+    doc.y=top+height+12;doc.x=42;
+  }
   function row(cells:Cell[],bold=false,size=9,repeatHeader?:Cell[]){
     const actual=cells.map(cell=>{let fontSize=size;doc.font(bold?"Helvetica-Bold":"Body").fontSize(fontSize);if(cell.money){while(fontSize>7&&doc.widthOfString(cell.text)>cell.width-8){fontSize-=0.25;doc.fontSize(fontSize);}}const height=doc.heightOfString(cell.text,{width:cell.width-8,lineGap:1});return{...cell,fontSize,height};});
     const height=Math.max(18,...actual.map(cell=>cell.height+8));if(ensure(height)&&repeatHeader)row(repeatHeader,true,8);const top=doc.y;let x=42;
@@ -35,13 +52,14 @@ function document(title:string,metadata:string[],generatedAt:string,landscape=fa
   }
   function amount(label:string,value:string,bold=false){row([{text:label,width:width()-170},{text:formatRupiah(value),width:170,align:"right",money:true}],bold,10);}
   function finish(){const range=doc.bufferedPageRange();for(let i=range.start;i<range.start+range.count;i++){doc.switchToPage(i);const bottom=doc.page.margins.bottom;doc.page.margins.bottom=0;doc.font("Body").fontSize(7).fillColor("#52636b").text("Dihasilkan "+displayTime(new Date(generatedAt)),42,doc.page.height-31,{lineBreak:false});doc.text("Halaman "+(i+1)+" / "+range.count,doc.page.width-140,doc.page.height-31,{width:98,align:"right",lineBreak:false});doc.page.margins.bottom=bottom;}doc.end();return finished;}
-  return{doc,width,heading,paragraph,row,amount,finish};
+  return{doc,width,heading,paragraph,notice,row,amount,finish};
 }
 export async function renderFinancialPdf(report:FinancialReport,type:ReportType,options:PdfOptions={}){
   validateText([report.diagnostics.warnings,...[...report.balance.assets,...report.balance.liabilities,...report.balance.equity,...report.income.revenue,...report.income.cogs,...report.income.expenses,...report.income.otherResults,...report.income.taxes].flatMap(section=>section.rows.filter(row=>!report.filter.hideZero||row.amount!=="0").map(row=>row.name)),...report.sources.map(source=>[source.journalNumber,source.businessNumber,source.parentNumber])]);
   const title=type==="balance"?"Neraca":type==="profit"?"Laba Rugi":"Laporan Keuangan";
   const pdf=document(title,["Tahun "+report.year.year+" ("+(report.year.status==="OPEN"?"Terbuka":"Terkunci")+")",displayDate(report.filter.from)+" - "+displayDate(report.filter.to)],report.generatedAt,false,options.testNotice);
-  if(report.diagnostics.warnings.length){pdf.heading("PERLU DIPERIKSA - BUKAN LAPORAN FINAL");for(const warning of report.diagnostics.warnings)pdf.paragraph(warning,"#a72c24");}
+  const notices=reportNotices(report);
+  if(notices.length){for(const notice of notices)pdf.notice(notice.title,notice.status,notice.paragraphs,notice.kind==="opening");}
   else pdf.paragraph("Pemeriksaan neraca, debit/kredit dan rincian kontrol sesuai pada snapshot ini.");
   function sections(values:ReportSection[]){for(const section of values){const rows=section.rows.filter(row=>!report.filter.hideZero||row.amount!=="0");if(!rows.length&&report.filter.hideZero)continue;pdf.heading(section.label);for(const row of rows)pdf.amount(row.code+"  "+row.name+(row.contra?" (pengurang)":""),row.amount);pdf.amount("Subtotal "+section.label,section.total,true);}}
   if(type!=="profit"){

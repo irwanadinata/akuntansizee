@@ -18,7 +18,7 @@ for name in ["balance", "profit", "combined", "ledger", "diagnostic"]:
         assert f"Halaman {index + 1} / {len(reader.pages)}" in page_text
         assert "WIB" in page_text
     if name == "diagnostic":
-        assert "BUKAN LAPORAN FINAL" in text
+        assert "Laporan perlu diperiksa - Belum final" in text
     if name in ["balance", "combined"]:
         assert "PJM-" in text and "CIC-" in text and "PIU-" in text and "BYC-" in text and "UTG-" in text and "BYS-" in text
     assert all(float(page.mediabox.width) > 500 for page in reader.pages)

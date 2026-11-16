@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { renderFinancialPdf,renderLedgerPdf } from "../src/lib/reports/pdf";
 import { syntheticReport,syntheticLedger } from "./fixtures/report";
+import { balanceWarnings } from "../src/lib/reports/diagnostics";
 test("PDF Neraca/Laba Rugi/gabungan valid, nomor input tetap dan object tidak dimutasi",async()=>{
   const report=syntheticReport(),before=JSON.stringify(report);
   for(const type of["balance","profit","combined"]as const){const bytes=await renderFinancialPdf(report,type,{testNotice:true});assert.equal(bytes.subarray(0,4).toString(),"%PDF");assert.ok(bytes.length>3000);assert.ok(bytes.subarray(-30).toString().includes("%%EOF"));assert.equal(JSON.stringify(report),before);assert.ok((bytes.toString("latin1").match(/\/Type \/Page\b/g)??[]).length<=4,"footer tidak boleh menghasilkan halaman kosong tambahan");}
@@ -12,4 +13,18 @@ test("PDF ledger menerima angka20digit tanpa float; peringatan dapat dicetak",as
 });
 test("glyph yang tidak didukung ditolak, tidak mengganti nama secara diam-diam",async()=>{
   const report=syntheticReport();report.balance.assets[0].rows[0].name="漢字";await assert.rejects(renderFinancialPdf(report,"balance"),/karakter/);
+});
+
+test("peringatan saldo awal tercetak pada Neraca, Laba Rugi dan gabungan tanpa mengubah saldo",async()=>{
+  const report=syntheticReport();
+  report.balance.difference=report.diagnostics.openingDifference="3000000";
+  report.diagnostics.warnings=balanceWarnings("3000000","3000000");
+  report.diagnostics.canUse=false;
+  const before=JSON.stringify(report);
+  for(const type of["balance","profit","combined"]as const){
+    const bytes=await renderFinancialPdf(report,type,{testNotice:true});
+    assert.equal(bytes.subarray(0,4).toString(),"%PDF");
+    assert.ok((bytes.toString("latin1").match(/\/Type \/Page\b/g)??[]).length<=4);
+    assert.equal(JSON.stringify(report),before);
+  }
 });

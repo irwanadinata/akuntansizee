@@ -11,10 +11,8 @@ import { formatRupiah } from "@/lib/accounting/money";
 import { Button } from "@/components/ui/button";
 import { PeriodFilters } from "./period-filters";
 import { PrintButton } from "./print-button";
-export function ReportDiagnostics({report}:{report:FinancialReport}){
-  const data=report.diagnostics;
-  return <section className="report-diagnostics space-y-3 rounded-xl border bg-card p-5"><h2 className="font-semibold">Pemeriksaan laporan</h2>{data.warnings.length?<div role="alert" className="space-y-2 rounded-lg border border-destructive p-4 text-sm text-destructive"><p className="font-semibold">PERLU DIPERIKSA - BUKAN LAPORAN FINAL</p><ul className="list-disc space-y-2 pl-5">{data.warnings.map(warning=><li key={warning}>{warning}</li>)}</ul></div>:<p className="text-sm text-primary">Neraca seimbang, debit/kredit cocok dan rincian akun kontrol sesuai pada snapshot ini.</p>}<p className="text-sm">Debit kumulatif {formatRupiah(data.trialDebit)} · Kredit {formatRupiah(data.trialCredit)} · Selisih {formatRupiah(data.trialDifference)}</p><div className="overflow-x-auto"><table className="w-full min-w-[540px] text-sm"><caption className="sr-only">Rekonsiliasi akun kontrol sampai tanggal laporan</caption><thead><tr>{["Akun kontrol","Buku Besar","Rincian","Selisih"].map(label=><th key={label} className="p-2 text-left last:text-right">{label}</th>)}</tr></thead><tbody>{data.reconciliations.map(row=><tr key={row.code} className="border-t"><td className="p-2">{row.name}</td>{[row.control,row.detail,row.difference].map((amount,i)=><td key={i} className="p-2 text-right tabular-nums">{formatRupiah(amount)}</td>)}</tr>)}</tbody></table></div>{data.invalidJournals.map(row=><p key={row.id} className="text-sm"><Link href={"/jurnal/"+row.id} className="text-destructive underline">Periksa {row.journalNumber}</Link></p>)}</section>;
-}
+import { ReportDiagnostics } from "./report-diagnostics";
+export { ReportDiagnostics } from "./report-diagnostics";
 function Total({label,amount}:{label:string;amount:string}){return <div className="flex justify-between gap-4 border-t bg-secondary/50 px-4 py-3 text-sm font-semibold"><span>{label}</span><span className={BigInt(amount)<0n?"text-destructive tabular-nums":"tabular-nums"}>{formatRupiah(amount)}</span></div>;}
 function Sections({sections,report,period}:{sections:ReportSection[];report:FinancialReport;period?:boolean}){
   return <>{sections.map(section=>{const rows=section.rows.filter(row=>!report.filter.hideZero||row.amount!=="0");if(!rows.length&&report.filter.hideZero)return null;

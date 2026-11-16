@@ -5,6 +5,7 @@ import { tradeMovements } from "../trade/balances";
 import { calculateStatements,type AccountTotals } from "./calculation";
 import { reportFilters,ReportError,MAX_PDF_SOURCES,type ReportType } from "./validation";
 import { referenceColumns,referenceJoins } from "./references";
+import { balanceWarnings } from "./diagnostics";
 type AggregateRow=Omit<AccountTotals,"cumulative"|"prior"|"yearToDate"|"period"|"reviewed">&{reviewedAt:Date|null;cumulative:Prisma.Decimal;prior:Prisma.Decimal;yearToDate:Prisma.Decimal;period:Prisma.Decimal};
 type SourceRow={id:string;date:Date;postedAt:Date;journalNumber:string;description:string;businessNumber:string|null;parentNumber:string|null;debit:Prisma.Decimal;credit:Prisma.Decimal};
 export type ReportSource={id:string;date:string;postedAt:string;journalNumber:string;description:string;businessNumber:string|null;parentNumber:string|null;debit:string;credit:string};
@@ -36,9 +37,7 @@ export async function financialReport(db:PrismaClient,raw:unknown,options:{type?
     const [closing]=await tx.$queryRaw<{count:bigint}[]>(Prisma.sql`SELECT COUNT(*) AS count FROM(SELECT e."id" FROM "JournalEntry" e JOIN "JournalLine" l ON l."entryId"=e."id" JOIN "Account" a ON a."id"=l."accountId" WHERE e."postingStatus"='POSTED' AND e."sourceType" IN('MANUAL','REVERSAL') AND e."date">=${filter.from}::date AND e."date"<=${filter.to}::date GROUP BY e."id" HAVING BOOL_OR(a."reportGroup"='RETAINED_EARNINGS') AND BOOL_OR(a."mainType" IN('REVENUE','COGS','EXPENSE','OTHER_RESULT'))) q`);
     const [openingTrial]=await tx.$queryRaw<{difference:Prisma.Decimal}[]>(Prisma.sql`SELECT COALESCE(SUM(l."debit"-l."credit"),0) AS difference FROM "OpeningJournal" o JOIN "JournalEntry" e ON e."id"=o."journalEntryId" JOIN "JournalLine" l ON l."entryId"=e."id" WHERE o."perAccount" AND e."postingStatus"='POSTED' AND e."date"<=${filter.to}::date`);
     const openingDifference=openingTrial.difference.toFixed(0);
-    const warnings=[...statements.mappingWarnings];
-    if(openingDifference!=="0")warnings.push("Saldo pembukaan per COA belum seimbang karena dicatat tanpa akun lawan. Lengkapi saldo pembukaan aset, utang dan modal berdasarkan bukti.");
-    if(statements.balance.difference!=="0")warnings.push("Neraca tidak seimbang. Periksa klasifikasi dan jurnal; tidak ada penyeimbang otomatis.");
+    const warnings=[...statements.mappingWarnings,...balanceWarnings(openingDifference,statements.balance.difference)];
     const trialDifference=(BigInt(trial.debit.toFixed(0))-BigInt(trial.credit.toFixed(0))).toString();
     if(trialDifference!==openingDifference||invalidJournals.length)warnings.push("Ada ketidaksesuaian debit/kredit atau bentuk jurnal terposting. Laporan perlu diperiksa.");
     if(reconciliations.some(row=>row.difference!=="0"))warnings.push("Saldo akun kontrol berbeda dengan rincian subledger.");
