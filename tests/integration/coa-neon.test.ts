@@ -86,6 +86,7 @@ test("Neon: approved 91 COA, seed twice, unique, admin preservation, archive/del
         isContra: source.isContra, isControlAccount: source.isControlAccount, isActive: source.isActive,
         requiresReview: source.requiresReview, reviewReason: source.reviewReason ?? "", reviewConfirmed: Boolean(source.reviewedAt),
       });
+      assert.equal(edited.reviewedAt?.getTime(), source.reviewedAt?.getTime());
       await seedCoaInTransaction(tx, plan, admin.id);
       assert.equal((await tx.account.findUniqueOrThrow({ where: { id: edited.id } })).name, "Admin edit survives");
       verified = true;

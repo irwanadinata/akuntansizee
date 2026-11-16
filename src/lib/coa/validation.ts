@@ -1,15 +1,16 @@
 import { z } from "zod";
 import { classificationSchema } from "./catalog";
 
-export const accountInputSchema = classificationSchema.safeExtend({
+export const accountFieldsSchema = classificationSchema.safeExtend({
   code: z.string().trim().min(1, "Kode wajib diisi.").max(32).regex(/^[0-9]+(?:\.[0-9]+)*$/, "Gunakan kode angka bertitik sebagai teks."),
   name: z.string().trim().min(1, "Nama wajib diisi.").max(255),
   description: z.string().trim().max(2000),
   isActive: z.boolean(), requiresReview: z.boolean(), reviewConfirmed: z.boolean(),
   reviewReason: z.string().trim().max(1000),
-}).strict().superRefine((value, ctx) => {
+}).strict();
+export const accountInputSchema = accountFieldsSchema.superRefine((value, ctx) => {
   if (mustReview(value) && value.isActive && !value.reviewConfirmed) {
-    ctx.addIssue({ code: "custom", path: ["reviewConfirmed"], message: "Periksa klasifikasi dan centang persetujuan, atau simpan akun sebagai nonaktif." });
+    ctx.addIssue({ code: "custom", path: ["reviewConfirmed"], message: "Periksa dan konfirmasikan klasifikasi akun sebelum mengaktifkannya." });
   }
 });
 export type AccountInput = z.infer<typeof accountInputSchema>;

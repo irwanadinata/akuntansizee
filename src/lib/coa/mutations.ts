@@ -36,6 +36,9 @@ export async function editAccountInTransaction(tx: Prisma.TransactionClient, act
   const row = await getLocked(tx, id, version);
   assertCanEdit({ ...row, usageCount: row._count.usageRecords }, input);
   const data = fields({ ...input, requiresReview: row.requiresReview || input.requiresReview });
+  const sameClassification = (["mainType", "reportGroup", "normalBalance", "isContra", "isControlAccount"] as const)
+    .every(key => row[key] === data[key]) && row.requiresReview === data.requiresReview;
+  if (sameClassification && row.reviewedAt) data.reviewedAt = row.reviewedAt;
   if (data.requiresReview && data.isActive && !data.reviewedAt) throw new CoaError("Review akun harus disahkan sebelum akun diaktifkan.");
   const updated = await tx.account.update({ where: { id, version }, data: { ...data, version: { increment: 1 } } });
   await audit(tx, actorId, "UPDATE", row, { before: row, after: updated });

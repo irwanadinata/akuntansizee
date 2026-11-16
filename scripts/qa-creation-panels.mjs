@@ -17,7 +17,7 @@ export async function checkCoaPanel({page, db, origin, screenshots, pass}) {
   await open();assert.equal(page.url(),url);assert.equal(await page.locator('main h1').innerText(),'Daftar Akun (COA)');
   const box=await panel.boundingBox();assert.ok(box.x>0&&Math.abs(box.x+box.width-1440)<2);
   await panel.getByRole('button',{name:'Simpan akun',exact:true}).click();assert.ok((await panel.getByRole('alert').allTextContents()).some(text=>text.trim()));
-  await panel.locator('#code').fill(code);await panel.locator('#name').fill(name);await panel.getByLabel('Saya sudah memeriksa',{exact:false}).check();
+  await panel.locator('#code').fill(code);await panel.locator('#name').fill(name);assert.equal(await panel.getByRole('checkbox').count(),0);
   await page.screenshot({path:join(screenshots,'coa-panel-desktop.png'),caret:'initial'});
   await panel.getByRole('button',{name:'Tutup formulir',exact:true}).click();await panel.getByRole('button',{name:'Lanjutkan mengisi',exact:true}).click();assert.equal(await panel.locator('#code').inputValue(),code);
   pass('COA opens from right above unchanged list, validates and preserves unsaved input');

@@ -55,3 +55,37 @@ test("editing an unused account updates metadata without any balance field", asy
   assert.equal(unit.row.version, 2); assert.ok(!("balance" in unit.row));
 });
 
+test("editing an approved control account preserves its role, inactive status and original approval", async () => {
+  const approvedAt = new Date("2026-01-02T00:00:00Z");
+  const unit = fixture({ isControlAccount: true, requiresReview: true, isActive: false, reviewedAt: approvedAt });
+  await editAccountInTransaction(unit.tx, "admin", "unit-id", 1, {
+    code: "1112.4", name: "Nama akun diperbaiki", description: "Keterangan baru", mainType: "ASSET", reportGroup: "CASH_BANK",
+    normalBalance: "DEBIT", isContra: false, isControlAccount: true, isActive: false,
+    requiresReview: true, reviewReason: "Persetujuan awal", reviewConfirmed: true,
+  });
+  assert.equal(unit.row.isControlAccount, true); assert.equal(unit.row.isActive, false);
+  assert.equal(unit.row.reviewedAt, approvedAt); assert.equal(unit.audit.length, 1);
+});
+
+test("changing classification does not carry an old approval into the new classification", async () => {
+  const unit = fixture({ reviewedAt: new Date("2026-01-02T00:00:00Z") });
+  await editAccountInTransaction(unit.tx, "admin", "unit-id", 1, {
+    code: "1112.4", name: "Beban kantor", description: "", mainType: "EXPENSE", reportGroup: "OPERATING_EXPENSE",
+    normalBalance: "DEBIT", isContra: false, isControlAccount: false, isActive: true,
+    requiresReview: false, reviewReason: "", reviewConfirmed: false,
+  });
+  assert.equal(unit.row.mainType, "EXPENSE"); assert.equal(unit.row.reviewedAt, null);
+});
+
+test("a newly required review records the new confirmation rather than reusing an ordinary approval", async () => {
+  const oldApproval = new Date("2026-01-02T00:00:00Z");
+  const unit = fixture({ reviewedAt: oldApproval });
+  await editAccountInTransaction(unit.tx, "admin", "unit-id", 1, {
+    code: "1112.4", name: "Transitory Account", description: "", mainType: "ASSET", reportGroup: "CASH_BANK",
+    normalBalance: "DEBIT", isContra: false, isControlAccount: false, isActive: true,
+    requiresReview: false, reviewReason: "", reviewConfirmed: true,
+  });
+  assert.equal(unit.row.requiresReview, true); assert.ok(unit.row.reviewedAt);
+  assert.notEqual(unit.row.reviewedAt, oldApproval);
+});
+

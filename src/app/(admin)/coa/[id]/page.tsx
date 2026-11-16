@@ -16,7 +16,7 @@ export default async function EditAccountPage({ params }: { params: Promise<{ id
     reviewReason: account.reviewReason ?? "", reviewConfirmed: Boolean(account.reviewedAt),
   });
   return <div className="space-y-6"><header><h1 className="text-2xl font-semibold">Ubah akun</h1><p className="mt-2 text-sm text-muted-foreground">Perubahan tidak mengisi atau menyesuaikan saldo akun.</p>{account.sourceRow && <p className="mt-2 text-sm text-muted-foreground">Sumber COA: baris {account.sourceRow}, kode asli {account.sourceCode}. Identitas sumber dipertahankan.</p>}</header>
-    <AccountForm initial={{ ...input, reviewConfirmed: false, id: account.id, version: account.version, used: Boolean(account.usedAt || account._count.usageRecords) }} />
+    <AccountForm initial={{ ...input, id: account.id, version: account.version, used: Boolean(account.usedAt || account._count.usageRecords) }} />
   </div>;
 }
 
